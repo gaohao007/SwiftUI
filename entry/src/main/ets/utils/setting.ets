@@ -1,6 +1,6 @@
 import { Context } from "@kit.AbilityKit"
 import { preferences } from "@kit.ArkData"
-import { setting_key, setting_key_ad } from "../constants"
+import { setting_key, setting_key_ad, USER_TOKEN_KEY } from "../constants"
 import { AdvertiseClass } from "../model"
 
 
@@ -35,5 +35,15 @@ export class UserSettingClass{
     return JSON.parse(str as string) as AdvertiseClass
   }
 
-
+// 针对token
+  async setUserToken(token:string){
+    const store = await this.getStore()
+    store.put(USER_TOKEN_KEY,token)
+    store.flush()
+  }
+  async  getUserToken():Promise<string>{
+    const store = await this.getStore()
+    const  str = await store.get(USER_TOKEN_KEY,'') as string
+    return  str
+  }
 }

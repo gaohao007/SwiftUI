@@ -5,3 +5,5 @@
  export  const  app_bottom_height = "bottom_height"
 
  export  const  SUB_WINDOWN_NAME = "ad_win"
+
+ export  const  USER_TOKEN_KEY = "TOKEN"
