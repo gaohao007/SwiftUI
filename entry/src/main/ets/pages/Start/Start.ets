@@ -10,19 +10,20 @@ aboutToDisappear(): void {
 clearInterval(this.timer)
 }
 
-
-  @State message: string = 'Hello World';
-   userSetting:UserSettingClass = new UserSettingClass(getContext(this))
+userSetting:UserSettingClass = new UserSettingClass(getContext(this))
   @State
     adObj:AdvertiseClass ={showAd:true,adTime:0,adImg:""}
+  //从首选项取数据
     @StorageProp(app_top_Height)
     headHeight:number=0;
-  timer:number =-1
+    //定时器
+    timer:number =-1
   async aboutToAppear() {
      this.adObj =await this.userSetting.getUserAd()
   this.timer =   setInterval(()=>{
-    if (this.adObj.adTime ===0) {
+    if (this.adObj.adTime === 0) {
       clearInterval(this.timer)
+      //杀死子窗口
       window.findWindow(SUB_WINDOWN_NAME).destroyWindow()
     }
     this.adObj.adTime--
@@ -42,7 +43,6 @@ clearInterval(this.timer)
           window.findWindow(SUB_WINDOWN_NAME).destroyWindow()
         })
     }
-
     .height('100%')
     .width('100%')
   }
