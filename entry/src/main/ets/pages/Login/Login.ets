@@ -1,9 +1,10 @@
-import { promptAction } from '@kit.ArkUI';
+import { promptAction, router } from '@kit.ArkUI';
 import { LoginForm, LoginFormModel } from '../../model';
 import { TOKEN_KEY, USER_TOKEN_KEY } from '../../constants';
 import { Request_API } from '../../utils';
 import {Log} from "@abner/log"
 import { UserSettingClass } from '../../utils/setting';
+import { login } from '../../api/user';
 
 
 PersistentStorage.persistProp(USER_TOKEN_KEY,"")
@@ -83,51 +84,7 @@ struct Login {
           this.isShow = true
           promptAction.showToast({ message: "登录成功!" })
         // http请求
-         const token = await Request_API.post<string>('login/account',this.accountForm)
-          Log.info(token)
-           new UserSettingClass(getContext(this)).setUserToken(token!)
-           AppStorage.set<string>(TOKEN_KEY,token)
-          // const  httpRequest = http.createHttp()
-          // const config:http.HttpRequestOptions ={
-          //   method:http.RequestMethod.POST,
-          //   readTimeout:10000,
-          //   header: {
-          //     "Content-Type": "application/json", //指定数据的格式,
-          //     "Authorization": "" //是否需要携带令牌
-          //   },
-          //   extraData:this.accountForm  //提交表单数据
-          // }
-          // try {
-          //   // 3. 发送请求
-          //   const res = await httpRequest.request("http://122.51.240.24:31007/driver/login/account", config)
-          //   // 4. 解析响应
-          //   if (res.responseCode === 401) {
-          //     AlertDialog.show({message:"权限不足"})
-          //   } else if (res.responseCode === 404) {
-          //     AlertDialog.show({message:"资源地址不存在"})
-          //   } else {
-          //     const result = JSON.parse(res.result as string) as ResponseDate<string>
-          //     if (result.code ===200) {
-          //       const  token = result.data
-          //       promptAction.showToast({message:"登录成功:     "+result.data})
-          //       new UserSettingClass(getContext(this)).setUserToken(token!)
-          //       AppStorage.set<string>(TOKEN_KEY,token)
-          //       this.isShow = false
-          //     }else {
-          //       promptAction.showToast({message:"登录失败"})
-          //     }
-          //     this.isShow = false
-          //     // const  ressss   =(result as string).replace('','\\')
-          //     // console.log(JSON.parse(ressss).data)
-          //     Log.info("result--->", JSON.stringify(result))
-          //   }
-          // } catch (error) {
-          //
-          // } finally {
-          //   httpRequest.destroy()
-          // }
-
-
+          this.login(this.accountForm)
 
         })
 
@@ -145,6 +102,22 @@ struct Login {
       return true
     }
     return false
+
+  }
+  async login(data:LoginForm){
+    try {
+      this.isShow=true
+      const token = await login(data)
+      Log.info(token)
+      AppStorage.set(TOKEN_KEY,token)
+      new UserSettingClass(getContext(this)).setUserToken(token)
+      this.isShow = false
+      router.pushUrl({url:"pages/Index"})
+    }catch (err){
+      promptAction.showToast({message:"登录失败"})
+    } finally {
+      this.isShow = false
+    }
 
   }
 }
