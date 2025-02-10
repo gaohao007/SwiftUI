@@ -9,3 +9,5 @@
  export  const  USER_TOKEN_KEY = "TOKEN"
 
  export  const  TOKEN_KEY = "PERSISTENCESTORAGE_TOKEN_KEY"
+
+ export  const  BASE_URL="http://122.51.240.24:31007/driver"
