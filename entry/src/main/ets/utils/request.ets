@@ -8,7 +8,7 @@ import { UserSettingClass } from "./setting";
 
 export  class  Request_API{
 static readonly baseUrl:string ='http://122.51.240.24:31007/driver/'
-
+static getUrl:string=''
   static async request<T>(url:string="",data?:object,method:http.RequestMethod=http.RequestMethod.GET):Promise<T>{
     const  httpRequest = http.createHttp()
     const config:http.HttpRequestOptions ={
@@ -16,10 +16,29 @@ static readonly baseUrl:string ='http://122.51.240.24:31007/driver/'
       readTimeout:10000,
       header: {
         "Content-Type": "application/json", //指定数据的格式,
-        "Authorization": AppStorage.get<string>(TOKEN_KEY) || "" //是否需要携带令牌
+        "Authorization": AppStorage.get<string>(TOKEN_KEY) || ""
       },
-      extraData:method === http.RequestMethod.GET?  "":data  //提交表单数据
+      extraData:method === http.RequestMethod.GET?  "":data
+
+
+
     }
+    if (method === http.RequestMethod.GET){
+      if (data && Object.keys(data).length) {
+        let arr:string[]=[]
+        for (let i=0;i<Object.keys(data).length;i++) {
+
+         let key = Object.keys(data)[i]
+          // 防止空值
+          if (data[key]) {
+            arr.push(`${key}=${data[key]}`)
+          }
+        }
+        Request_API.getUrl= Request_API.baseUrl+"?"+arr.join('&')
+      }
+
+    }
+
     try {
       // 3. 发送请求
       const res = await httpRequest.request(Request_API.baseUrl+url, config)
