@@ -1,17 +1,20 @@
-import { promptAction, router } from '@kit.ArkUI';
+import { promptAction } from '@kit.ArkUI';
 import { LoginForm, LoginFormModel } from '../../model';
+import { http } from '@kit.NetworkKit';
+import { USER_TOKEN_KEY } from '../../constants';
 
-
+PersistentStorage.persistProp(USER_TOKEN_KEY,"")
 @Entry
 @Component
 struct Login {
 @State isShow:boolean = false
 
+
   @State
-account:LoginForm = new LoginFormModel({
-  account:'',
-  passowrd:''
-})
+  accountForm: LoginForm = new LoginFormModel({
+    account: "",
+    password:''
+  })
 
   build() {
     Column({space:15}){
@@ -44,7 +47,7 @@ account:LoginForm = new LoginFormModel({
           .borderRadius(0)
           .border({ width: { bottom: 1 }, color: "#c1c1c1" })
           .onChange((value: string) => {
-            this.account.account = value
+            this.accountForm.account = value
           })
 
         TextInput({ placeholder: "请输入密码" })
@@ -54,8 +57,8 @@ account:LoginForm = new LoginFormModel({
           .type(InputType.Password)
           .borderRadius(0)
           .border({ width: { bottom: 1 }, color: "#c1c1c1" })
-          .onChange((val: string) => {
-            this.account.passowrd = val
+          .onChange((value: string) => {
+            this.accountForm.password = value
           })
 
         Button({ type: ButtonType.Capsule, stateEffect: this.getFormValidate() }) {
@@ -73,9 +76,44 @@ account:LoginForm = new LoginFormModel({
         .margin({ top: 20 })
         .backgroundColor(this.getFormValidate() ? $r("app.color.primary") : $r("app.color.primary_disabled"))
         .enabled(this.getFormValidate())
-        .onClick(() => {
+        .onClick(async () => {
           this.isShow = true
           promptAction.showToast({ message: "登录成功!" })
+        // http请求
+
+
+          const  httpRequest = http.createHttp()
+          const config:http.HttpRequestOptions ={
+            method:http.RequestMethod.POST,
+            readTimeout:10000,
+            header: {
+              "Content-Type": "application/json", //指定数据的格式,
+              "Authorization": "" //是否需要携带令牌
+            },
+            extraData:this.accountForm  //提交表单数据
+          }
+          try {
+            // 3. 发送请求
+            const res = await httpRequest.request("http://122.51.240.24:31007/driver/login/account", config)
+            // 4. 解析响应
+            if (res.responseCode === 401) {
+              AlertDialog.show({message:"权限不足"})
+            } else if (res.responseCode === 404) {
+              AlertDialog.show({message:"资源地址不存在"})
+            } else {
+              const result = res.result
+              const  ressss   =(result as string).replace('','\\')
+              console.log(JSON.parse(ressss).data)
+              console.log("result--->", JSON.stringify(result))
+            }
+          } catch (error) {
+
+          } finally {
+            httpRequest.destroy()
+          }
+
+
+
         })
 
 
@@ -88,7 +126,7 @@ account:LoginForm = new LoginFormModel({
   }
   // 显示按钮是否可用
   getFormValidate(){
-    if (this.account.account!=="" && this.account.passowrd !=="") {
+    if (this.accountForm.account!=="" && this.accountForm.password !=="") {
       return true
     }
     return false

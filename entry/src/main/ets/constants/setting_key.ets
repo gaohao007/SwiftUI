@@ -7,3 +7,5 @@
  export  const  SUB_WINDOWN_NAME = "ad_win"
 
  export  const  USER_TOKEN_KEY = "TOKEN"
+
+ export  const  TOKEN_KEY = "PERSISTENCESTORAGE_TOKEN_KEY"

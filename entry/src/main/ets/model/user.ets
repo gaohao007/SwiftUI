@@ -1,13 +1,13 @@
 export  interface  LoginForm{
   account:string
-  passowrd:string
+  password:string
 }
 export  class LoginFormModel implements LoginForm{
   account: string =''
-  passowrd: string=''
+  password: string=''
 
   constructor(model:LoginForm) {
-    this.passowrd = model.passowrd
+    this.password = model.password
     this.account = model.account
   }
 }
