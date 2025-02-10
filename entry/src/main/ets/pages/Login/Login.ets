@@ -2,6 +2,7 @@ import { promptAction } from '@kit.ArkUI';
 import { LoginForm, LoginFormModel } from '../../model';
 import { http } from '@kit.NetworkKit';
 import { USER_TOKEN_KEY } from '../../constants';
+import { Log, LogOptions } from '@abner/log';
 
 PersistentStorage.persistProp(USER_TOKEN_KEY,"")
 @Entry
@@ -104,7 +105,7 @@ struct Login {
               const result = res.result
               const  ressss   =(result as string).replace('','\\')
               console.log(JSON.parse(ressss).data)
-              console.log("result--->", JSON.stringify(result))
+              Log.info("result--->", JSON.stringify(result))
             }
           } catch (error) {
 
