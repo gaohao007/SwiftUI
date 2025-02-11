@@ -85,9 +85,10 @@ struct Login {
           this.isShow = true
           promptAction.showToast({ message: "登录成功!" })
         // http请求
-        //   this.login(this.accountForm)
-         const token = await instance.post<null,string>('/login/account',this.accountForm)
-          Log.info(token)
+          this.login(this.accountForm)
+
+          //  const token = await instance.post<null,string>('/login/account',this.accountForm)
+        //   Log.info(token)
         })
 
 
@@ -104,8 +105,10 @@ struct Login {
       return true
     }
     return false
-
   }
+
+
+
   async login(data:LoginForm){
     try {
       this.isShow=true
@@ -114,7 +117,7 @@ struct Login {
       AppStorage.set(TOKEN_KEY,token)
       new UserSettingClass(getContext(this)).setUserToken(token)
       this.isShow = false
-      router.pushUrl({url:"pages/Index"})
+      router.pushUrl({url:"pages/Index/Index"})
     }catch (err){
       promptAction.showToast({message:"登录失败"})
     } finally {
