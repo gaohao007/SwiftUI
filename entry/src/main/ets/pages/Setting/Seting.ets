@@ -1,11 +1,25 @@
 import { Card, CardItem, Confirmdelete, NavBar } from '../../components';
+import { TOKEN_KEY } from '../../constants';
+import { UserSettingClass } from '../../utils/setting';
+import { router } from '@kit.ArkUI';
 
 @Entry
 @Component
 struct Seting {
+
+  logout(){
+    AppStorage.set(TOKEN_KEY,"")
+    new UserSettingClass(getContext(this)).setUserToken('')
+    router.clear()
+    router.replaceUrl({
+      url:"pages/Login/Login"
+    })
+  }
+
   confirm:CustomDialogController = new CustomDialogController({
     builder:Confirmdelete({message:"确定退出登录吗?",
-      buttonList:[{
+      buttonList:[
+        {
       title:"取消",
         fontsize:14,
         fontColor:$r("app.color.text_secondary")
@@ -13,13 +27,16 @@ struct Seting {
         {
           title:"退出",
           fontsize:14,
-          fontColor:$r("app.color.text_secondary"),
+          fontColor:$r("app.color.primary"),
           action:()=>{
-
+              this.logout()
           }
         }
-      ]
-    })
+      ],
+    }),
+    customStyle:true,
+    alignment:DialogAlignment.Center,
+    autoCancel:false
   })
   build() {
     Column(){

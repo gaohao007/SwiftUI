@@ -7,9 +7,10 @@ import { UserSettingClass } from "./setting";
 
 
 export  class  Request_API{
-  // 'http://122.51.240.24:31007/driver/' ||
-static readonly baseUrl:string ="http://124.220.148.251:8080/driver/"
-static getUrl:string=''
+  // http://122.51.240.24:31007/driver/
+//   http://124.220.148.251:8080/driver/
+static readonly baseUrl:string ="http://122.51.240.24:31007/driver/"
+
   static async request<T>(url:string="",data?:object,method:http.RequestMethod=http.RequestMethod.GET):Promise<T>{
     const  httpRequest = http.createHttp()
     const config:http.HttpRequestOptions ={
@@ -20,10 +21,8 @@ static getUrl:string=''
         "Authorization":  AppStorage.get<string>(TOKEN_KEY) ||""
       },
       extraData:method === http.RequestMethod.GET?  "":data
-
-
-
     }
+   let urlStr = Request_API.baseUrl+url
     if (method === http.RequestMethod.GET){
       if (data && Object.keys(data).length) {
         let arr:string[]=[]
@@ -35,14 +34,14 @@ static getUrl:string=''
             arr.push(`${key}=${data[key]}`)
           }
         }
-        Request_API.getUrl= Request_API.baseUrl+"?"+arr.join('&')
+        urlStr+= "?" + arr.join('&')
       }
 
     }
 
     try {
       // 3. 发送请求
-      const res = await httpRequest.request(Request_API.baseUrl+url, config)
+      const res = await httpRequest.request(urlStr, config)
       // 4. 解析响应
       if (res.responseCode === 401) {
         AlertDialog.show({message:"未授权或Token失效"})

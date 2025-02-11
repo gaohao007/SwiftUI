@@ -4,6 +4,7 @@ import { Card, CardItem } from "../../../components"
 import {  UserTaskInfo, UserTaskInfoModel, UserInfo, UserInfoModel,
 UserTaskInfoParamsModel} from "../../../model"
 import { router } from "@kit.ArkUI"
+import { Log } from "@abner/log"
 
 
 @Component
@@ -14,9 +15,10 @@ export  struct Mine{
     month: (new Date().getMonth() + 1).toString()
   })
   @State userInfo:UserInfoModel= new UserInfoModel({} as UserInfo)
-   aboutToAppear() {
-     this.getUserInfo()
-    this.getTaskInfo()
+   async aboutToAppear() {
+      await this.getUserInfo()
+      await this.getTaskInfo()
+     Log.info(JSON.stringify(this.taskInfo))
   }
   async getUserInfo(){
     this.userInfo = await getUserInfo()
@@ -65,7 +67,7 @@ export  struct Mine{
             .fontColor($r("app.color.text_secondary")).lineHeight(25)
         Row(){
             Column(){
-                  Text(this.taskInfo.taskAmounts?.toString()||"")
+                  Text(this.taskInfo.taskAmounts?.toString()||" ")
                     .fontSize(18)
                     .fontColor($r("app.color.text_primary"))
                     .lineHeight(25)
@@ -78,7 +80,7 @@ export  struct Mine{
             .layoutWeight(1)
 
           Column(){
-            Text(this.taskInfo.completeAmount?.toString() || "")
+            Text(this.taskInfo.completeAmount?.toString() || " ")
               .fontSize(18)
               .fontColor($r("app.color.text_primary"))
               .lineHeight(25)
@@ -92,7 +94,7 @@ export  struct Mine{
 
 
           Column(){
-            Text(this.taskInfo.transportMileage?.toString()||"")
+            Text(this.taskInfo.transportMileage?.toString()||" ")
               .fontSize(18)
               .fontColor($r("app.color.text_primary"))
               .lineHeight(25)
