@@ -5,6 +5,7 @@ import { Request_API } from '../../utils';
 import {Log} from "@abner/log"
 import { UserSettingClass } from '../../utils/setting';
 import { login } from '../../api/user';
+import { instance } from '../../utils/AxiosRequest';
 
 
 PersistentStorage.persistProp(USER_TOKEN_KEY,"")
@@ -84,8 +85,9 @@ struct Login {
           this.isShow = true
           promptAction.showToast({ message: "登录成功!" })
         // http请求
-          this.login(this.accountForm)
-
+        //   this.login(this.accountForm)
+         const token = await instance.post<null,string>('/login/account',this.accountForm)
+          Log.info(token)
         })
 
 
