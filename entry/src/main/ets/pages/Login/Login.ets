@@ -1,14 +1,13 @@
 import { promptAction, router } from '@kit.ArkUI';
 import { LoginForm, LoginFormModel } from '../../model';
-import { TOKEN_KEY, USER_TOKEN_KEY } from '../../constants';
-import { Request_API } from '../../utils';
+import { TOKEN_KEY, } from '../../constants';
 import {Log} from "@abner/log"
 import { UserSettingClass } from '../../utils/setting';
 import { login } from '../../api/user';
-import { instance } from '../../utils/AxiosRequest';
 
 
-PersistentStorage.persistProp(USER_TOKEN_KEY,"")
+
+PersistentStorage.persistProp(TOKEN_KEY,"")
 @Entry
 @Component
 struct Login {
@@ -117,7 +116,7 @@ struct Login {
       AppStorage.set(TOKEN_KEY,token)
       new UserSettingClass(getContext(this)).setUserToken(token)
       this.isShow = false
-      router.pushUrl({url:"pages/Index/Index"})
+      router.replaceUrl({url:"pages/Index/Index"})
     }catch (err){
       promptAction.showToast({message:"登录失败"})
     } finally {

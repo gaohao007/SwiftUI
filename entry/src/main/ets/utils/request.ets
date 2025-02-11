@@ -7,7 +7,8 @@ import { UserSettingClass } from "./setting";
 
 
 export  class  Request_API{
-static readonly baseUrl:string ='http://122.51.240.24:31007/driver/'
+  // 'http://122.51.240.24:31007/driver/' ||
+static readonly baseUrl:string ="http://124.220.148.251:8080/driver/"
 static getUrl:string=''
   static async request<T>(url:string="",data?:object,method:http.RequestMethod=http.RequestMethod.GET):Promise<T>{
     const  httpRequest = http.createHttp()
@@ -16,7 +17,7 @@ static getUrl:string=''
       readTimeout:10000,
       header: {
         "Content-Type": "application/json", //指定数据的格式,
-        "Authorization": AppStorage.get<string>(TOKEN_KEY) || ""
+        "Authorization":  AppStorage.get<string>(TOKEN_KEY) ||""
       },
       extraData:method === http.RequestMethod.GET?  "":data
 

@@ -1,14 +1,15 @@
-import { it } from '@ohos/hypium'
+import { TOKEN_KEY } from '../../constants'
 import { TabClass } from '../../model'
+import { Mine } from './My/Mine'
+
+PersistentStorage.persistProp(TOKEN_KEY,"")
 
 @Entry
 @Component
 struct Index {
   //默认选中
   @State
-   currentName:string = 'Task'
-
-
+   currentName:string = 'Mine'
 @State tabsData:TabClass[]=[
   {
     title:"任务",
@@ -39,7 +40,7 @@ struct Index {
 }
 
   build() {
-    Tabs({barPosition:BarPosition.End}){
+    Tabs({barPosition:BarPosition.End,index:2}){
       ForEach(this.tabsData,(item:TabClass)=>{
         TabContent(){
           if (item.name === 'Task') {
@@ -47,12 +48,12 @@ struct Index {
           }else  if (item.name === 'Message'){
             Text('消息组件')
           }else {
-            Text('我的组件')
+            Mine()
           }
         }.tabBar(this.getTabBar(item))
       })
     }.onChange((index:number)=>{
-      this.currentName = this.tabsData[index].name
+      this.currentName = this.tabsData[index].name!
     })
     .animationDuration(300)
 

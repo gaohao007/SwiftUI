@@ -4,7 +4,7 @@ import { window } from '@kit.ArkUI';
 import { AdvertiseClass } from "../model";
 import { UserSettingClass } from '../utils/setting';
 
-import { app_bottom_height, app_top_Height, SUB_WINDOWN_NAME } from '../constants';
+import { app_bottom_height, app_top_Height, SUB_WINDOWN_NAME, TOKEN_KEY } from '../constants';
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
@@ -50,11 +50,11 @@ export default class EntryAbility extends UIAbility {
       // 显示系统首页;判断用户是否合法(判断是否有token)---->考虑(是否持久化)
      const token =  await userSetting.getUserToken()
     if (token){
+      AppStorage.setOrCreate(TOKEN_KEY,token)
       windowStage.loadContent('pages/Index/Index', (err) => {
       });
     }else {
       windowStage.loadContent("pages/Login/Login",(err)=>{
-
       })
     }
 
