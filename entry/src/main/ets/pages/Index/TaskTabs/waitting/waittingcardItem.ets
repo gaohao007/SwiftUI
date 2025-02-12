@@ -1,4 +1,5 @@
 import { TaskList, TaskListModel } from "../../../../model/task"
+import { router } from "@kit.ArkUI"
 
 
 @Component
@@ -81,6 +82,9 @@ export  struct TaskItemCard{
           .fontSize(14)
           .height(32)
           .enabled(this.getBtnEnable())
+          .onClick(()=>{
+            this.gotoTaskDatail()
+          })
       }
       .width('100%')
       .justifyContent(FlexAlign.SpaceBetween)
@@ -88,5 +92,13 @@ export  struct TaskItemCard{
     .borderRadius(8)
     .margin({left:15,right:15,top:15})
     .padding(19)
+  }
+  gotoTaskDatail(){
+    router.pushUrl({
+      url:"pages/TaskDetail/TaskDetail",
+      params:{
+        id:this.taskItemData.id
+      }
+    })
   }
 }
