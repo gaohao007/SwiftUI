@@ -1,11 +1,23 @@
 import { Card, CardItem, Confirmdelete, NavBar } from '../../components';
-import { TOKEN_KEY } from '../../constants';
+import { setting_key, TOKEN_KEY, USER_TOKEN_KEY } from '../../constants';
 import { UserSettingClass } from '../../utils/setting';
 import { router } from '@kit.ArkUI';
+import { common } from '@kit.AbilityKit';
+import { Log } from '@abner/log';
+import { serviceNotification } from '@kit.PushKit';
 
+PersistentStorage.persistProp(TOKEN_KEY,'')
 @Entry
 @Component
 struct Seting {
+  context:common.UIAbilityContext=getContext(this) as common.UIAbilityContext
+  fileDir =this.context.preferencesDir
+    pers = this.context.filesDir+"/"+TOKEN_KEY
+
+  aboutToAppear(): void {
+    Log.info(this.fileDir)+"/"+setting_key
+  }
+
 
   logout(){
     AppStorage.set(TOKEN_KEY,"")

@@ -1,6 +1,7 @@
 import { TOKEN_KEY } from '../../constants'
 import { TabClass } from '../../model'
 import { Mine } from './My/Mine'
+import { TaskTabs } from './TaskTabs/TaskTabs'
 
 PersistentStorage.persistProp(TOKEN_KEY,"")
 
@@ -44,7 +45,7 @@ struct Index {
       ForEach(this.tabsData,(item:TabClass)=>{
         TabContent(){
           if (item.name === 'Task') {
-            Text('任务组件')
+            TaskTabs()
           }else  if (item.name === 'Message'){
             Text('消息组件')
           }else {
