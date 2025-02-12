@@ -1,12 +1,13 @@
 import { it } from "@ohos/hypium";
 import { TabClass } from "../../../model";
+import { Waitting } from "./waitting/waitting";
 
 @Component
 export struct TaskTabs {
 
   @Builder
   getTabBar(item:TabClass){
-    Column(){
+    Column({space:5}){
       Text(item.title)
         .fontColor(item.name===this.tasksData[this.currentIndex].name?$r("app.color.primary") :$r("app.color.text_secondary"))
       Divider()
@@ -14,8 +15,11 @@ export struct TaskTabs {
         .color(item.name===this.tasksData[this.currentIndex].name?$r("app.color.primary") :$r("app.color.text_secondary"))
         .lineCap(LineCapStyle.Round)
         .animation({duration:300})
-        .width(item.name===this.tasksData[this.currentIndex].name?25:0)
-    }
+        .width(item.name===this.tasksData[this.currentIndex].name?40:0)
+    }.onClick(()=>{
+      const index = this.tasksData.findIndex(obj=>obj.name===item.name)
+      this.currentIndex = index
+    })
   }
 
 
@@ -36,18 +40,32 @@ export struct TaskTabs {
     }
   ]
   build() {
-    Tabs({barPosition:BarPosition.Start,index:$$this.currentIndex}){
-        ForEach(this.tasksData,(item:TabClass,index:number)=>{
-            TabContent(){
-                  Text(item.title)
-            }.tabBar(this.getTabBar(item))
-        })
-    }
-    .onChange((value:number)=>{
-      this.currentIndex = value
-    })
-    .backgroundColor($r("app.color.background_page"))
-    .animationDuration(300)
+   Stack({alignContent:Alignment.TopStart}) {
+     Tabs({ barPosition: BarPosition.Start, index: $$this.currentIndex }) {
+       ForEach(this.tasksData, (item: TabClass, index: number) => {
+         TabContent() {
+           if (item.name ==  'waitting') {
+             Waitting()
+           } else if (item.name === 'line') {
+
+           } else {
+
+           }
+         }
+       })
+     }
+     .backgroundColor($r("app.color.background_page"))
+     .animationDuration(300)
+
+       Row({space:20}){
+         ForEach(this.tasksData,(item:TabClass,index:number)=>{
+           this.getTabBar(item)
+         })
+       }.width('100%')
+       .height(50)
+       .padding({left:40,right:40})
+        .backgroundColor($r("app.color.background_page"))
+     }
 
   }
 }
