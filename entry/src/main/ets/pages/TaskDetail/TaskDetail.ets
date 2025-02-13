@@ -3,8 +3,9 @@ import { router } from '@kit.ArkUI'
 
 import { getTaskDetailInfo } from '../../api/task'
 import { NavBar, PictureUpload, ToggleCard } from '../../components'
-import { CommonRouterParams, TaskDetailInfo, TaskDetailInfoModel } from '../../model'
+import { CommonRouterParams, ImageList, TaskDetailInfo, TaskDetailInfoModel } from '../../model'
 import { call } from '@kit.TelephonyKit'
+import { Log } from '@abner/log'
 
 @Entry
 @Component
@@ -23,6 +24,7 @@ struct TaskDetail {
   async getTaskDetailData(id:string){
     const res = await getTaskDetailInfo(id)
     this.taskDetailDateInfo = res
+    Log.info(JSON.stringify(res))
   }
   // 显示基本信息
   @Builder
@@ -156,8 +158,18 @@ getTransportLinesInfo(){
 
 @Builder
 getPickUpContent(){
-    PictureUpload({title:"请拍照上传回单凭证"})
-    PictureUpload({title:"请拍照上传货品照片"})
+    PictureUpload({title:"请拍照上传回单凭证"
+    ,ImageList:this.taskDetailDateInfo.cargoPickUpPictureList || []
+    ,onListChange:(data:ImageList[])=>{
+      this.taskDetailDateInfo.cargoPickUpPictureList =data
+      }
+    })
+    PictureUpload({title:"请拍照上传货品照片",
+      ImageList:this.taskDetailDateInfo.cargoPictureList || []
+    ,onListChange:(data:ImageList[])=>{
+        this.taskDetailDateInfo.cargoPictureList=data
+      }
+    })
 }
 
 @Builder
@@ -170,11 +182,16 @@ getBottomBtn(){
         .width(125)
 
       Button('提货')
-        .backgroundColor($r("app.color.primary_disabled"))
+        .backgroundColor(this.getPickUpStatus()?$r("app.color.primary"):$r("app.color.primary_disabled"))
         .fontColor($r('app.color.white'))
         .height(50)
         .layoutWeight(1)
         .margin({left:12})
+        .enabled(this.getPickUpStatus())
+        .onClick(()=>{
+          //提货
+          this.btnPickUp()
+        })
     }
     .justifyContent(FlexAlign.SpaceBetween)
   .width('100%')
@@ -185,8 +202,11 @@ getBottomBtn(){
   .translate({y:-80})
 }
 
+//提货
+  btnPickUp(){
+   // 图片上传
 
-
+  }
 
   build() {
     Column(){
@@ -224,6 +244,15 @@ getBottomBtn(){
     .width('100%')
     .backgroundColor($r("app.color.background_page"))
   }
+
+  getPickUpStatus(){
+    if (this.taskDetailDateInfo.cargoPickUpPictureList?.length > 0
+    && this.taskDetailDateInfo.cargoPictureList?.length>0) {
+      return true
+    }
+    return false
+  }
+
 }
 
 

@@ -47,7 +47,9 @@ export default class EntryAbility extends UIAbility {
       await win.showWindow()
       win.setUIContent('pages/Start/Start')
     }
-      // 显示系统首页;判断用户是否合法(判断是否有token)---->考虑(是否持久化)
+    // windowStage.loadContent('pages/DownloadImage', (err) => {
+    //     });
+    //   显示系统首页;判断用户是否合法(判断是否有token)---->考虑(是否持久化)
      const token =  await userSetting.getUserToken()
     if (token){
       AppStorage.setOrCreate(TOKEN_KEY,token)
