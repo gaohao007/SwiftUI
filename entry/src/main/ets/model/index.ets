@@ -5,3 +5,5 @@ export * from "./common"
 export  * from "./tab"
 
 export  * from "./task"
+export  * from "./taskDetail"
+export  * from "./routerParams"

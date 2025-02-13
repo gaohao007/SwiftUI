@@ -9,7 +9,7 @@ import { UserSettingClass } from "./setting";
 export  class  Request_API{
   // http://122.51.240.24:31007/driver/
 //   http://124.220.148.251:8080/driver/
-static readonly baseUrl:string ="http://124.220.148.251:8080/driver/"
+static readonly baseUrl:string ="http://122.51.240.24:31007/driver/"
 
   static async request<T>(url:string="",data?:object,method:http.RequestMethod=http.RequestMethod.GET):Promise<T>{
     const  httpRequest = http.createHttp()
