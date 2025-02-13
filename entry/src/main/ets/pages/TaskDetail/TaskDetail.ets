@@ -1,12 +1,17 @@
 
 import { router } from '@kit.ArkUI'
+
 import { getTaskDetailInfo } from '../../api/task'
-import { NavBar } from '../../components'
+import { NavBar, PictureUpload, ToggleCard } from '../../components'
 import { CommonRouterParams, TaskDetailInfo, TaskDetailInfoModel } from '../../model'
+import { call } from '@kit.TelephonyKit'
 
 @Entry
 @Component
 struct TaskDetail {
+
+  scroller:Scroller = new Scroller()
+
   @State
     taskDetailDateInfo:TaskDetailInfo = new TaskDetailInfoModel({} as TaskDetailInfo)
   async aboutToAppear() {
@@ -14,21 +19,233 @@ struct TaskDetail {
     if (params &&  params.id) {
      await this.getTaskDetailData(params.id)
     }
-
-
-
   }
   async getTaskDetailData(id:string){
     const res = await getTaskDetailInfo(id)
     this.taskDetailDateInfo = res
   }
+  // 显示基本信息
+  @Builder
+  getBaseDateInfo(){
+    Row(){
+      Column(){
+        Row(){
+            Text('起')
+              .fontSize(12)
+              .height(22)
+              .width(22)
+              .borderRadius(11)
+              .fontColor($r("app.color.white"))
+              .backgroundColor($r("app.color.text_primary"))
+              .textAlign(TextAlign.Center)
+            Text(this.taskDetailDateInfo.startAddress)
+              .fontSize(14)
+              .fontColor($r("app.color.text_secondary"))
+              .margin({left:12})
+        }.margin({top:18})
+        Row(){
+          Text('止')
+            .fontSize(12)
+            .height(22)
+            .width(22)
+            .borderRadius(11)
+            .fontColor($r("app.color.white"))
+            .backgroundColor($r("app.color.primary"))
+            .textAlign(TextAlign.Center)
+          Text(this.taskDetailDateInfo.endAddress)
+            .fontSize(14)
+            .fontColor($r("app.color.text_secondary"))
+            .margin({left:12})
+        }.margin({top:14})
+      }.alignItems(HorizontalAlign.Start)
+      Column(){
+        Image($r("app.media.ic_navigation"))
+          .width(22).aspectRatio(1)
+        Text('开始导航')
+          .fontSize(14)
+          .margin({top:10,bottom:10})
+      }
+      .justifyContent(FlexAlign.SpaceBetween)
+      .margin({top:22})
+    }.width('100%')
+    .justifyContent(FlexAlign.SpaceBetween)
+    .alignItems(VerticalAlign.Center)
+    Divider()
+      .width(2)
+      .color($r("app.color.background_divider"))
+      .margin({top:20,left:8,right:8})
+    this.getBaseContentItem({title:"任务编号",value:this.taskDetailDateInfo.transportTaskId})
+    this.getBaseContentItem({title:"联系人",value:this.taskDetailDateInfo.startHandoverName})
+    this.getBaseContentItem({
+      title:"联系电话",value:this.taskDetailDateInfo.startHandoverPhone,icon:$r("app.media.ic_phone"),
+      action:async ()=>{
+       await call.makeCall(this.taskDetailDateInfo.startHandoverPhone)
+      }
+    })
+    this.getBaseContentItem({title:"提货时间",value:this.taskDetailDateInfo.planDepartureTime})
+    this.getBaseContentItem({title:"预计送达时间",value:this.taskDetailDateInfo.planArrivalTime})
+  }
+  @Builder
+  getBaseContentItem(item:BaseContentItemBuilderClass){
+    Row(){
+      Text(item.title)
+        .fontSize(14)
+        .fontColor($r("app.color.text_secondary"))
+        .lineHeight(20)
+      Row(){
+        Text(item.value)
+          .fontSize(14)
+          .fontColor($r("app.color.text_secondary"))
+        if (item.icon){
+          Image(item.icon)
+            .width(24).aspectRatio(1)
+            .onClick(()=>{
+              if (item.action) {
+                item.action()
+              }
+            })
+        }
+      }
+    }.width('100%')
+    .justifyContent(FlexAlign.SpaceBetween)
+    .margin({top:14})
+  }
+
+  //司机信息
+  @Builder
+  getDriverInfo(){
+    this.getBaseContentItem({title:"车牌号",value:this.taskDetailDateInfo.licensePlate})
+    this.getBaseContentItem({title:"司机姓名",value:this.taskDetailDateInfo.driverName})
+  }
+
+//运输路径:
+@Builder
+getTransportLinesInfo(){
+    Row(){
+      Column(){
+        Text(this.taskDetailDateInfo.startProvince)
+          .fontWeight(700)
+          .fontColor($r("app.color.text_primary"))
+          .lineHeight(22)
+        Text(this.taskDetailDateInfo.startCity)
+          .fontSize(14)
+          .fontColor($r("app.color.text_primary"))
+          .lineHeight(22)
+
+      }.height(50)
+      Image($r("app.media.ic_right_arrow"))
+        .height(36).aspectRatio(1)
+
+      Column(){
+        Text(this.taskDetailDateInfo.endProvince)
+          .fontWeight(700)
+          .fontColor($r("app.color.text_primary"))
+          .lineHeight(22)
+        Text(this.taskDetailDateInfo.endCity)
+          .fontSize(14)
+          .fontColor($r("app.color.text_primary"))
+          .lineHeight(22)
+
+      }.height(50)
+
+    }.width('100%')
+  .padding({left:60,right:60})
+  .justifyContent(FlexAlign.SpaceBetween)
+}
+
+
+@Builder
+getPickUpContent(){
+    PictureUpload({title:"请拍照上传回单凭证"})
+    PictureUpload({title:"请拍照上传货品照片"})
+}
+
+@Builder
+getBottomBtn(){
+    Row(){
+      Button('延迟提货')
+        .backgroundColor($r("app.color.btn_gray"))
+        .fontColor($r("app.color.text_primary"))
+        .height(50)
+        .width(125)
+
+      Button('提货')
+        .backgroundColor($r("app.color.primary_disabled"))
+        .fontColor($r('app.color.white'))
+        .height(50)
+        .layoutWeight(1)
+        .margin({left:12})
+    }
+    .justifyContent(FlexAlign.SpaceBetween)
+  .width('100%')
+  .height(80)
+  .padding({left:15,right:15})
+  .backgroundColor($r("app.color.white"))
+  .position({y :"100%"})
+  .translate({y:-80})
+}
+
+
+
 
   build() {
     Column(){
         NavBar({title:"订单详情"})
-      Text(JSON.stringify(this.taskDetailDateInfo))
+
+        if (this.taskDetailDateInfo){
+          Scroll(this.scroller){
+            Column(){
+              ToggleCard({ title:"基本信息", isShowToggleImage:false }){
+                this.getBaseDateInfo()
+              }
+
+              ToggleCard({title:"车辆司机信息",isShowToggleImage:false}){
+                this.getDriverInfo()
+              }
+
+              ToggleCard({title:"运输路径",isShowToggleImage:false}){
+                this.getTransportLinesInfo()
+              }
+
+              ToggleCard({title:"提货信息",isShowToggleImage:false}){
+                this.getPickUpContent()
+              }
+
+            }
+            .padding({bottom:140})
+          }
+        }
+
+       this.getBottomBtn()
+
+
     }
     .height('100%')
     .width('100%')
+    .backgroundColor($r("app.color.background_page"))
   }
 }
+
+
+
+class BaseContentItemBuilderClass{
+  title:string=""
+  value:string=""
+  icon?:ResourceStr=""
+  action?:()=>void=()=>{}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
