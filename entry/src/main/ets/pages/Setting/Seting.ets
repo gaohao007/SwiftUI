@@ -4,19 +4,51 @@ import { UserSettingClass } from '../../utils/setting';
 import { router } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { Log } from '@abner/log';
-import { serviceNotification } from '@kit.PushKit';
+import { fileIo } from '@kit.CoreFileKit';
 
 PersistentStorage.persistProp(TOKEN_KEY,'')
 @Entry
 @Component
 struct Seting {
-  context:common.UIAbilityContext=getContext(this) as common.UIAbilityContext
-  fileDir =this.context.preferencesDir
-    pers = this.context.filesDir+"/"+TOKEN_KEY
 
-  aboutToAppear(): void {
-    Log.info(this.fileDir)+"/"+setting_key
+  @State files:string[]=[]
+aboutToAppear(): void {
+    //模块下的文件
+    const  context =  getContext(this)
+    const cacheDir = context.cacheDir
+    this.files = this.getFileByPath(cacheDir)
+    const filesDir =context.filesDir
+    this.files = [...this.files,...this.getFileByPath(filesDir)]
+  const preferencesDir = context.preferencesDir
+  this.files = [...this.files, ...this.getFileByPath(preferencesDir)]
+  //应用下的文件
+  const application = context.getApplicationContext()
+  const cacheAppDir = application.cacheDir //缓存目录
+  this.files = [...this.files, ...this.getFileByPath(cacheAppDir)]
+  const filesAppDir = application.filesDir //file目录
+  this.files = [...this.files, ...this.getFileByPath(filesAppDir)]
+  const preferencesAppDir = application.preferencesDir
+  this.files = [...this.files, ...this.getFileByPath(preferencesAppDir)]
+  Log.info(JSON.stringify(this.files))
   }
+
+getFileByPath(path:string):string[]{
+    let files:string[]=[]
+  fileIo.listFileSync(path,{recursion:true}).forEach((item:string)=>{
+    if (fileIo.accessSync(path+item)) {
+      if (fileIo.statSync(path+item).isDirectory()) {
+        this.getFileByPath(path+item)
+      }else {
+        files.push(path+item)
+      }
+    }
+  })
+    return files
+}
+
+
+
+
 
 
   logout(){
@@ -34,7 +66,10 @@ struct Seting {
         {
       title:"取消",
         fontsize:14,
-        fontColor:$r("app.color.text_secondary")
+        fontColor:$r("app.color.text_secondary"),
+          action:()=>{
+            this.confirm.close()
+          }
       },
         {
           title:"退出",
@@ -50,6 +85,34 @@ struct Seting {
     alignment:DialogAlignment.Center,
     autoCancel:false
   })
+
+  clearOutRemomery:CustomDialogController = new CustomDialogController({
+    builder:Confirmdelete({message:"确定清除缓存吗?",
+    buttonList:[
+      {
+        title:"取消",
+        fontsize:14,
+        fontColor:$r("app.color.text_secondary"),
+        action:()=>{
+          this.confirm.close()
+        }
+      },
+      {
+        title:"确定",
+        fontsize:14,
+        fontColor:$r("app.color.primary"),
+        action:()=>{
+          this.clearAndDeleteRemoneryFiles()
+        }
+      },
+    ]
+    }),
+    customStyle:true,
+    alignment:DialogAlignment.Center,
+    autoCancel:false
+  })
+
+
   build() {
     Column(){
       NavBar({title:"系统设置"})
@@ -71,7 +134,10 @@ struct Seting {
 
         CardItem({
           leftTitle:"清理缓存",
-          showBottomBorder:false
+          showBottomBorder:false,
+          onRightClick:()=>{
+                this.clearOutRemomery.open()
+          }
         })
 
 
@@ -91,5 +157,12 @@ struct Seting {
     .height('100%')
     .width('100%')
     .backgroundColor($r("app.color.background_page"))
+  }
+  clearAndDeleteRemoneryFiles(){
+    this.files.forEach((item:string)=>{
+      fileIo.unlinkSync(item)
+    })
+    this.files=[];
+    router.replaceUrl({url:"pages/Login/Login"})
   }
 }

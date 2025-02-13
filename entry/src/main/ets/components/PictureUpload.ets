@@ -10,7 +10,7 @@ import { util } from "@kit.ArkTS"
 export struct PictureUpload{
   // 照片列表
   @Prop
-          ImageList:ImageList[]=[]
+      ImageList:ImageList[]=[]
 
   onListChange:(list:ImageList[])=>void=()=>{}
 
