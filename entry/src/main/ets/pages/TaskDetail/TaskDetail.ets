@@ -1,12 +1,16 @@
 
 import { promptAction, router } from '@kit.ArkUI'
 
-import { getTaskDetailInfo, pickUp } from '../../api/task'
+import { deliver, getTaskDetailInfo, pickUp } from '../../api/task'
 import { Loading, NavBar, PictureUpload, ToggleCard, UploadFiles } from '../../components'
-import { CommonRouterParams, ImageList, PickUpParamsModel, TaskDetailInfo, TaskDetailInfoModel } from '../../model'
+import { CommonRouterParams,
+  DeliverParamsModel,
+  ImageList, PickUpParamsModel, TaskDetailInfo, TaskDetailInfoModel,
+  TaskTypeEunm } from '../../model'
 import { call } from '@kit.TelephonyKit'
 import { Log } from '@abner/log'
 import { Skeleton } from '../../components/Skeleton'
+import { app_bottom_height, app_top_Height } from '../../constants'
 
 @Entry
 @Component
@@ -171,36 +175,98 @@ getPickUpContent(){
     ,ImageList:this.taskDetailDateInfo.cargoPickUpPictureList || []
     ,onListChange:(data:ImageList[])=>{
       this.taskDetailDateInfo.cargoPickUpPictureList =data
-      }
+      },
+      isOrNoUpLoad:this.taskDetailDateInfo.status === TaskTypeEunm.Watting
     })
     PictureUpload({title:"请拍照上传货品照片",
       ImageList:this.taskDetailDateInfo.cargoPictureList || []
     ,onListChange:(data:ImageList[])=>{
         this.taskDetailDateInfo.cargoPictureList=data
-      }
+      },
+      isOrNoUpLoad:this.taskDetailDateInfo.status === TaskTypeEunm.Watting
     })
 }
+
+
+
+  @Builder
+  getDriverContent(){
+    PictureUpload({title:"请拍照上传交货凭证"
+    ,ImageList:this.taskDetailDateInfo.certificatePictureList || []
+    ,onListChange:(data:ImageList[])=>{
+        this.taskDetailDateInfo.certificatePictureList =data
+      },
+      isOrNoUpLoad:this.taskDetailDateInfo.status === TaskTypeEunm.Line
+    })
+    PictureUpload({title:"请拍照上传交货照片",
+      ImageList:this.taskDetailDateInfo.deliverPictureList || []
+    ,onListChange:(data:ImageList[])=>{
+        this.taskDetailDateInfo.deliverPictureList=data
+      },
+      isOrNoUpLoad:this.taskDetailDateInfo.status === TaskTypeEunm.Line
+    })
+  }
+
+
+
 
 @Builder
 getBottomBtn(){
     Row(){
-      Button('延迟提货')
-        .backgroundColor($r("app.color.btn_gray"))
-        .fontColor($r("app.color.text_primary"))
-        .height(50)
-        .width(125)
+  if (this.taskDetailDateInfo.status  === TaskTypeEunm.Watting){
+    Button('延迟提货')
+      .backgroundColor($r("app.color.btn_gray"))
+      .fontColor($r("app.color.text_primary"))
+      .height(50)
+      .width(125)
 
-      Button('提货')
-        .backgroundColor(this.getPickUpStatus()?$r("app.color.primary"):$r("app.color.primary_disabled"))
-        .fontColor($r('app.color.white'))
+    Button('提货')
+      .backgroundColor(this.getPickUpStatus()?$r("app.color.primary"):$r("app.color.primary_disabled"))
+      .fontColor($r('app.color.white'))
+      .height(50)
+      .layoutWeight(1)
+      .margin({left:12})
+      .enabled(this.getPickUpStatus())
+      .onClick(()=>{
+        //提货
+        this.btnPickUp()
+      })
+  }else if (this.taskDetailDateInfo.status  === TaskTypeEunm.Line){
+    Button('上报异常')
+      .backgroundColor($r("app.color.btn_gray"))
+      .fontColor($r("app.color.text_primary"))
+      .height(50)
+      .width(125)
+
+    Button('交货')
+      .backgroundColor(this.getDeliverStatus()?$r("app.color.primary"):$r("app.color.primary_disabled"))
+      .fontColor($r('app.color.white'))
+      .height(50)
+      .layoutWeight(1)
+      .margin({left:12})
+      .enabled(this.getDeliverStatus())
+      .onClick(()=>{
+        this.btnDeliver()
+      })
+  }else if (this.taskDetailDateInfo.status  === TaskTypeEunm.Delivered){
+    Row(){
+      Button('回车登记')
+        .backgroundColor($r("app.color.primary"))
+        .fontColor($r("app.color.white"))
         .height(50)
-        .layoutWeight(1)
-        .margin({left:12})
-        .enabled(this.getPickUpStatus())
+        .width('80%')
         .onClick(()=>{
-          //提货
-          this.btnPickUp()
+              router.pushUrl({
+                url:"pages/CarRecord/CardRecord",
+                params:{
+                  id:this.taskDetailDateInfo.id
+                }
+              })
         })
+    }.width('100%')
+    .justifyContent(FlexAlign.Center)
+  }
+
     }
     .justifyContent(FlexAlign.SpaceBetween)
   .width('100%')
@@ -221,7 +287,7 @@ getBottomBtn(){
        await UploadFiles(this.taskDetailDateInfo.cargoPictureList)]
      )
      Log.info(JSON.stringify(result))
-     await  pickUp(new PickUpParamsModel({
+     await  pickUp( new PickUpParamsModel({
        id:this.taskDetailDateInfo.id,
        cargoPickUpPictureList:result[0],
        cargoPictureList:result[1]
@@ -235,12 +301,39 @@ getBottomBtn(){
      this.layer.close()
    }
   }
+//交货
+  async  btnDeliver(){
+    // 图片上传
+    try {
+      this.layer.open()
+      const result =  await Promise.all([
+        await UploadFiles(this.taskDetailDateInfo.certificatePictureList),
+        await UploadFiles(this.taskDetailDateInfo.deliverPictureList)]
+      )
+      Log.info(JSON.stringify(result))
+      await  deliver(new DeliverParamsModel({
+          id:this.taskDetailDateInfo.id,
+          certificatePictureList:result[0],
+         deliverPictureList:result[1]
+      } ))
+      this.getTaskDetailData(this.taskDetailDateInfo.id)
+      this.scroller.scrollEdge(Edge.Top)
+      promptAction.showToast({message:"交货成功!!",duration:3000})
+    } catch (err) {
+      AlertDialog.show({message:"交货失败"+JSON.stringify(err)})
+    } finally {
+      this.layer.close()
+    }
+  }
+
 
   build() {
     Column(){
+      Row()
+        .width('100%')
+        .backgroundColor($r("app.color.white"))
+        .height(AppStorage.get<number>(app_top_Height))
         NavBar({title:"订单详情"})
-
-
          if (this.taskDetailDateInfo.id){
            Scroll(this.scroller){
              Column(){
@@ -256,9 +349,20 @@ getBottomBtn(){
                  this.getTransportLinesInfo()
                }
 
-               ToggleCard({title:"提货信息",isShowToggleImage:false}){
-                 this.getPickUpContent()
+               if (this.taskDetailDateInfo.status === TaskTypeEunm.Watting
+               || this.taskDetailDateInfo.status === TaskTypeEunm.Delivered) {
+                 ToggleCard({title:"提货信息",isShowToggleImage:false}){
+                   this.getPickUpContent()
+                 }
                }
+
+               if (this.taskDetailDateInfo.status === TaskTypeEunm.Line
+               ||  this.taskDetailDateInfo.status === TaskTypeEunm.Delivered) {
+                 ToggleCard({title:"交货信息",isShowToggleImage:false}){
+                   this.getDriverContent()
+                 }
+               }
+
 
              }
              .padding({bottom:140})
@@ -266,17 +370,14 @@ getBottomBtn(){
          }else {
            Skeleton()
          }
-
-
        this.getBottomBtn()
-
 
     }
     .height('100%')
     .width('100%')
     .backgroundColor($r("app.color.background_page"))
   }
-
+//提货按钮状态
   getPickUpStatus(){
     if (this.taskDetailDateInfo.cargoPickUpPictureList?.length > 0
     && this.taskDetailDateInfo.cargoPictureList?.length>0) {
@@ -285,6 +386,14 @@ getBottomBtn(){
     return false
   }
 
+  //交货按钮状态
+  getDeliverStatus(){
+    if (this.taskDetailDateInfo.certificatePictureList?.length > 0
+      && this.taskDetailDateInfo.deliverPictureList?.length>0) {
+      return true
+    }
+    return false
+  }
 }
 
 

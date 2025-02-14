@@ -1,4 +1,4 @@
-import { TaskList, TaskListModel } from "../../../../model/task"
+import { TaskList, TaskListModel, TaskTypeEunm } from "../../../../model/task"
 import { router } from "@kit.ArkUI"
 
 
@@ -6,9 +6,42 @@ import { router } from "@kit.ArkUI"
 export  struct TaskItemCard{
   taskItemData:TaskList = new TaskListModel({} as TaskList)
 
+  //按钮的文本
+  getBtnText(){
+    const status = this.taskItemData?.status.toString()
+    switch (status){
+      case TaskTypeEunm.Watting.toString():
+        return '提货';
+      case  TaskTypeEunm.Line.toString():
+        return "交货";
+      case  TaskTypeEunm.Change.toString():
+        return "改签"
+      case  TaskTypeEunm.Delivered.toString():
+        return "回车登记"
+      default:
+        return ""
+    }
+  }
+
+
+
+
+
+
+
+
   getBtnEnable() {
-    if (this.taskItemData.enablePickUp) {
+    if (this.taskItemData?.enablePickUp) {
       return true
+    }
+    const status = this.taskItemData?.status.toString()
+    switch (status){
+      case TaskTypeEunm.Line.toString(): //在途
+      case TaskTypeEunm.Change.toString()://改签
+      case TaskTypeEunm.Delivered.toString()://已交货
+        return true
+      default :
+        return false
     }
 
     return false
@@ -76,12 +109,12 @@ export  struct TaskItemCard{
             .margin({ top: 4 })
         }.alignItems(HorizontalAlign.Start)
 
-        Button("提货")
+        Button(this.getBtnText())
           .backgroundColor(this.getBtnEnable() ? $r("app.color.primary") : $r("app.color.primary_disabled"))
           .fontColor($r("app.color.white"))
           .fontSize(14)
           .height(32)
-          .enabled(this.getBtnEnable())
+          // .enabled(this.getBtnEnable())
           .onClick(()=>{
             this.gotoTaskDatail()
           })

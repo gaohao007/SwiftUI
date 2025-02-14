@@ -20,6 +20,8 @@ export default class EntryAbility extends UIAbility {
 
     //读取窗口头部的高度
     const  mainWin= windowStage.getMainWindowSync()
+    // 沉浸式开发
+    mainWin.setWindowLayoutFullScreen(true)
     //头部高度(px2vp 将像素转为vp)
  const topHeight =  px2vp(mainWin.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR).bottomRect.height)
     AppStorage.setOrCreate<number>(app_top_Height,topHeight)

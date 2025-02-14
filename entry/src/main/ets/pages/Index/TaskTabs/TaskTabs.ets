@@ -1,5 +1,5 @@
-import { it } from "@ohos/hypium";
-import { TabClass } from "../../../model";
+
+import { TabClass, TaskListParams, TaskListParamsModel, TaskTypeEunm } from "../../../model";
 import { Waitting } from "./waitting/waitting";
 
 @Component
@@ -47,9 +47,12 @@ export struct TaskTabs {
            if (item.name ==  'waitting') {
              Waitting()
            } else if (item.name === 'line') {
-
+              Waitting({queryParams: new TaskListParamsModel({
+                status:TaskTypeEunm.Line,
+                page:1,
+                pageSize:5
+              } as TaskListParams) })
            } else {
-
            }
          }
        })

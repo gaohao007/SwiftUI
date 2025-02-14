@@ -18,6 +18,8 @@ export struct PictureUpload{
 
   maxNumber:number=6
   title:string =""
+@Prop
+  isOrNoUpLoad:boolean=true
   build() {
     Column(){
       Text(this.title)
@@ -32,16 +34,18 @@ export struct PictureUpload{
              .width(95)
              .aspectRatio(1)
              .borderRadius(6)
-           Image($r("app.media.ic_btn_delete"))
-             .width(30).aspectRatio(1)
-             .onClick(()=>{
-               this.ImageList.splice(index,1)
-               this.onListChange(this.ImageList)
-             })
+           if (this.isOrNoUpLoad) {
+             Image($r("app.media.ic_btn_delete"))
+               .width(30).aspectRatio(1)
+               .onClick(()=>{
+                 this.ImageList.splice(index,1)
+                 this.onListChange(this.ImageList)
+               })
+           }
          }
        }
         })
-        if (this.ImageList.length<this.maxNumber){
+        if (this.ImageList.length<this.maxNumber && this.isOrNoUpLoad ){
           GridItem(){
             Row(){
               Image($r("app.media.ic_add_img"))

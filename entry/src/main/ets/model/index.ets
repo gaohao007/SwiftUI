@@ -9,3 +9,4 @@ export  * from "./taskDetail"
 export  * from "./routerParams"
 
 export  * from "./pickup"
+export  * from "./delivery"

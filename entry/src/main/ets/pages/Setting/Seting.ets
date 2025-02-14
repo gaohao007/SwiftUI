@@ -1,8 +1,8 @@
 import { Card, CardItem, Confirmdelete, NavBar } from '../../components';
-import { setting_key, TOKEN_KEY, USER_TOKEN_KEY } from '../../constants';
+import { app_top_Height, TOKEN_KEY } from '../../constants';
 import { UserSettingClass } from '../../utils/setting';
 import { router } from '@kit.ArkUI';
-import { common } from '@kit.AbilityKit';
+
 import { Log } from '@abner/log';
 import { fileIo } from '@kit.CoreFileKit';
 
@@ -115,6 +115,10 @@ getFileByPath(path:string):string[]{
 
   build() {
     Column(){
+
+      Row().width('100%')
+        .height(AppStorage.get(app_top_Height))
+        .backgroundColor($r('app.color.white'))
       NavBar({title:"系统设置"})
 
       Card(){
@@ -144,8 +148,11 @@ getFileByPath(path:string):string[]{
       }
       Row(){
         Button('退出')
+          .type(ButtonType.Normal)
+          .borderRadius(10)
+          .height(36)
           .width('100%')
-          .backgroundColor('#fff')
+          .backgroundColor($r("app.color.white"))
           .fontColor($r("app.color.text_primary"))
           .onClick(()=>{
             this.confirm.open()

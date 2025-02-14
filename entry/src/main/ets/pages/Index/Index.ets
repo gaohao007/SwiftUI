@@ -1,4 +1,4 @@
-import { TOKEN_KEY } from '../../constants'
+import { app_bottom_height, app_top_Height, TOKEN_KEY } from '../../constants'
 import { TabClass } from '../../model'
 import { Mine } from './My/Mine'
 import { TaskTabs } from './TaskTabs/TaskTabs'
@@ -53,12 +53,13 @@ struct Index {
           }
         }.tabBar(this.getTabBar(item))
       })
-    }.onChange((index:number)=>{
+    }
+    .onChange((index:number)=>{
       this.currentName = this.tabsData[index].name!
     })
     .animationDuration(300)
-
-    .height('100%')
-    .width('100%')
+    .padding({top:AppStorage.get<number>(app_top_Height),
+      bottom:AppStorage.get<number>(app_bottom_height)
+    })
   }
 }
