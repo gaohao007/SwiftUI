@@ -7,3 +7,5 @@ export  * from "./tab"
 export  * from "./task"
 export  * from "./taskDetail"
 export  * from "./routerParams"
+
+export  * from "./pickup"

@@ -5,6 +5,7 @@ import { fileIo } from "@kit.CoreFileKit"
 import File from "@system.file"
 import { util } from "@kit.ArkTS"
 import { request } from "@kit.BasicServicesKit"
+import { upLoadImage } from "../api"
 
 
 @Component
@@ -84,7 +85,7 @@ export struct PictureUpload{
   }
 }
 
-export const UploadFiles=(list:ImageList[])=>{
+export async  function  UploadFiles (list:ImageList[]){
   //将文件copy到cache沙箱目录中
   const cacheDir = getContext().cacheDir
   const fileParams:request.File[]=[]
@@ -103,7 +104,7 @@ export const UploadFiles=(list:ImageList[])=>{
   Log.info(JSON.stringify(fileParams))
 
 //   调用后端接口完成图片上传
-
+  return await upLoadImage(getContext(),fileParams)
 
 }
 
