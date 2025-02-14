@@ -4,6 +4,7 @@ import { ImageList } from "../model"
 import { fileIo } from "@kit.CoreFileKit"
 import File from "@system.file"
 import { util } from "@kit.ArkTS"
+import { request } from "@kit.BasicServicesKit"
 
 
 @Component
@@ -86,12 +87,24 @@ export struct PictureUpload{
 export const UploadFiles=(list:ImageList[])=>{
   //将文件copy到cache沙箱目录中
   const cacheDir = getContext().cacheDir
+  const fileParams:request.File[]=[]
   list.forEach((Image:ImageList)=>{
     const  source =  fileIo.openSync(Image.url,fileIo.OpenMode.READ_ONLY)
-  const  newName = util.generateRandomUUID()+'jpg'
+  const  newName = util.generateRandomUUID()+'.jpg'
     fileIo.copyFileSync(source.fd,cacheDir+"/"+newName)
-    fileIo.closeSync(source.fd)
+    fileIo.closeSync(source)
+    fileParams.push({
+      filename:newName,
+      name:"file",
+      uri: "internal://cache/" + newName,
+      type:"jpg"
+    })
   })
+  Log.info(JSON.stringify(fileParams))
+
+//   调用后端接口完成图片上传
+
+
 }
 
 

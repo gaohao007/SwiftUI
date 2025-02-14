@@ -2,7 +2,7 @@
 import { router } from '@kit.ArkUI'
 
 import { getTaskDetailInfo } from '../../api/task'
-import { NavBar, PictureUpload, ToggleCard } from '../../components'
+import { NavBar, PictureUpload, ToggleCard, UploadFiles } from '../../components'
 import { CommonRouterParams, ImageList, TaskDetailInfo, TaskDetailInfoModel } from '../../model'
 import { call } from '@kit.TelephonyKit'
 import { Log } from '@abner/log'
@@ -205,7 +205,7 @@ getBottomBtn(){
 //提货
   btnPickUp(){
    // 图片上传
-
+    UploadFiles(this.taskDetailDateInfo.cargoPictureList)
   }
 
   build() {
