@@ -1,11 +1,12 @@
 
-import { router } from '@kit.ArkUI'
+import { promptAction, router } from '@kit.ArkUI'
 
-import { getTaskDetailInfo } from '../../api/task'
-import { NavBar, PictureUpload, ToggleCard, UploadFiles } from '../../components'
-import { CommonRouterParams, ImageList, TaskDetailInfo, TaskDetailInfoModel } from '../../model'
+import { getTaskDetailInfo, pickUp } from '../../api/task'
+import { Loading, NavBar, PictureUpload, ToggleCard, UploadFiles } from '../../components'
+import { CommonRouterParams, ImageList, PickUpParamsModel, TaskDetailInfo, TaskDetailInfoModel } from '../../model'
 import { call } from '@kit.TelephonyKit'
 import { Log } from '@abner/log'
+import { Skeleton } from '../../components/Skeleton'
 
 @Entry
 @Component
@@ -15,6 +16,15 @@ struct TaskDetail {
 
   @State
     taskDetailDateInfo:TaskDetailInfo = new TaskDetailInfoModel({} as TaskDetailInfo)
+  layer:CustomDialogController=new CustomDialogController({
+    builder:Loading({loadingText:"数据正在处理中,请耐心等待!"}),
+    customStyle:true,
+    alignment:DialogAlignment.Center,
+    autoCancel:false
+
+  })
+
+
   async aboutToAppear() {
   const params =router.getParams() as CommonRouterParams
     if (params &&  params.id) {
@@ -203,38 +213,61 @@ getBottomBtn(){
 }
 
 //提货
-  btnPickUp(){
+ async  btnPickUp(){
    // 图片上传
-    UploadFiles(this.taskDetailDateInfo.cargoPictureList)
+   try {
+     this.layer.open()
+     const result =  await Promise.all([
+       await UploadFiles(this.taskDetailDateInfo.cargoPickUpPictureList),
+       await UploadFiles(this.taskDetailDateInfo.cargoPictureList)]
+     )
+     Log.info(JSON.stringify(result))
+     await  pickUp(new PickUpParamsModel({
+       id:this.taskDetailDateInfo.id,
+       cargoPickUpPictureList:result[0],
+       cargoPictureList:result[1]
+     }))
+     this.getTaskDetailData(this.taskDetailDateInfo.id)
+    this.scroller.scrollEdge(Edge.Top)
+     promptAction.showToast({message:"提货成功!!",duration:3000})
+   } catch (err) {
+     AlertDialog.show({message:"提货失败"+JSON.stringify(err)})
+   } finally {
+     this.layer.close()
+   }
   }
 
   build() {
     Column(){
         NavBar({title:"订单详情"})
 
-        if (this.taskDetailDateInfo){
-          Scroll(this.scroller){
-            Column(){
-              ToggleCard({ title:"基本信息", isShowToggleImage:false }){
-                this.getBaseDateInfo()
-              }
 
-              ToggleCard({title:"车辆司机信息",isShowToggleImage:false}){
-                this.getDriverInfo()
-              }
+         if (this.taskDetailDateInfo.id){
+           Scroll(this.scroller){
+             Column(){
+               ToggleCard({ title:"基本信息", isShowToggleImage:false }){
+                 this.getBaseDateInfo()
+               }
 
-              ToggleCard({title:"运输路径",isShowToggleImage:false}){
-                this.getTransportLinesInfo()
-              }
+               ToggleCard({title:"车辆司机信息",isShowToggleImage:false}){
+                 this.getDriverInfo()
+               }
 
-              ToggleCard({title:"提货信息",isShowToggleImage:false}){
-                this.getPickUpContent()
-              }
+               ToggleCard({title:"运输路径",isShowToggleImage:false}){
+                 this.getTransportLinesInfo()
+               }
 
-            }
-            .padding({bottom:140})
-          }
-        }
+               ToggleCard({title:"提货信息",isShowToggleImage:false}){
+                 this.getPickUpContent()
+               }
+
+             }
+             .padding({bottom:140})
+           }
+         }else {
+           Skeleton()
+         }
+
 
        this.getBottomBtn()
 

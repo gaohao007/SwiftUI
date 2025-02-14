@@ -1,7 +1,9 @@
 //进度条
 @Component
-
+@CustomDialog
 export  struct Loading{
+  controller:CustomDialogController
+  loadingText:string=""
  hwidth:number=40
   maxNum:number=100
   @State num:number =0
@@ -19,6 +21,7 @@ aboutToDisappear(): void {
  }
 
   build() {
+ Column({space:10}){
    Progress({
      value:this.num,
      total:this.maxNum,
@@ -26,5 +29,11 @@ aboutToDisappear(): void {
    }).color($r("app.color.text_secondary"))
      .width(this.hwidth)
      .style({strokeWidth:2})
+   if (this.loadingText){
+     Text(this.loadingText)
+       .fontSize(12)
+       .fontColor($r("app.color.text_secondary"))
+   }
+ }.alignItems(HorizontalAlign.Center)
   }
 }
