@@ -21,7 +21,6 @@ struct TaskDetail {
     customStyle:true,
     alignment:DialogAlignment.Center,
     autoCancel:false
-
   })
 
 
