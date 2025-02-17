@@ -16,6 +16,13 @@ struct DelayPickUp {
     alignment:DialogAlignment.Bottom
   })
 
+  getDate(date:string){
+    const  res = new Date(date)
+   const day =  `${res.getFullYear()}-${res.getMonth()+1}-${res.getDate()} ${res.getHours()+2}:${res.getMinutes()} `
+    console.log('------.day',JSON.stringify(day))
+    return day
+  }
+
   @State delayParams:DelayParams = new  DelayParamsModel({} as DelayParams)
   @State endTime:string=""
 aboutToAppear(){
@@ -44,7 +51,7 @@ maxLength:number=50
               alignment:DialogAlignment.Bottom,
               selected:new Date(this.endTime),
               start:new Date(this.endTime),
-              end:new Date((new Date(this.endTime).getHours()+2).toString()),
+              end: new Date(this.getDate(this.endTime)),
               onDateAccept:(data:Date)=>{
                 promptAction.showToast({message:JSON.stringify(data)})
                 this.delayParams.delayTime = dayjs(data).format("YYYY-MM-DD HH:mm")

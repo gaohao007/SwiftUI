@@ -7,6 +7,7 @@
     "pages/TaskDetail/TaskDetail",
     "pages/DownloadImage",
     "pages/CarRecord/CardRecord",
-    "pages/delayPickUp/DelayPickUp"
+    "pages/delayPickUp/DelayPickUp",
+    "pages/ExceptionReports/ExceptionReport"
   ]
 }

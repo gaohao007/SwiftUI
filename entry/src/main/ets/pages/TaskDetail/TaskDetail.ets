@@ -246,6 +246,11 @@ getBottomBtn(){
       .fontColor($r("app.color.text_primary"))
       .height(50)
       .width(125)
+      .onClick(()=>{
+        router.pushUrl({url:"pages/ExceptionReports/ExceptionReport",params:{
+          id:this.taskDetailDateInfo.transportTaskId}
+        })
+      })
 
     Button('交货')
       .backgroundColor(this.getDeliverStatus()?$r("app.color.primary"):$r("app.color.primary_disabled"))
