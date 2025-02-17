@@ -6,6 +6,7 @@
     "pages/Setting/Seting",
     "pages/TaskDetail/TaskDetail",
     "pages/DownloadImage",
-    "pages/CarRecord/CardRecord"
+    "pages/CarRecord/CardRecord",
+    "pages/delayPickUp/DelayPickUp"
   ]
 }

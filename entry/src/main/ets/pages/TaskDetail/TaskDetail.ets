@@ -219,6 +219,15 @@ getBottomBtn(){
       .fontColor($r("app.color.text_primary"))
       .height(50)
       .width(125)
+      .onClick(()=>{
+        router.pushUrl({
+          url:"pages/delayPickUp/DelayPickUp",
+          params:{
+            id:this.taskDetailDateInfo.id,
+            planTime:this.taskDetailDateInfo.planDepartureTime
+          }
+        })
+      })
 
     Button('提货')
       .backgroundColor(this.getPickUpStatus()?$r("app.color.primary"):$r("app.color.primary_disabled"))

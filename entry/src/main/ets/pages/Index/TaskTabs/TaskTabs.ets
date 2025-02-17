@@ -53,6 +53,11 @@ export struct TaskTabs {
                 pageSize:5
               } as TaskListParams) })
            } else {
+             Waitting({queryParams: new TaskListParamsModel({
+               status:TaskTypeEunm.Finish,
+               page:1,
+               pageSize:5
+             } as TaskListParams) })
            }
          }
        })

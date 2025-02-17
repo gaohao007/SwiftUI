@@ -32,7 +32,7 @@ queryParams:TaskListParams = new  TaskListParamsModel({
     this.totalPage = res.pages
     Log.info(JSON.stringify(res))
     if (append) {
-      this.taskListData =this.taskListData.concat(res.items)
+      this.taskListData =this.taskListData.concat(res.items || [])
     }else {
       this.taskListData =  res.items
     }

@@ -10,3 +10,5 @@ export  * from "./routerParams"
 
 export  * from "./pickup"
 export  * from "./delivery"
+export  * from "./CarRecord"
+export  * from "./delay"

@@ -18,17 +18,12 @@ export  struct TaskItemCard{
         return "改签"
       case  TaskTypeEunm.Delivered.toString():
         return "回车登记"
+      case  TaskTypeEunm.Finish.toString():
+        return "详情"
       default:
         return ""
     }
   }
-
-
-
-
-
-
-
 
   getBtnEnable() {
     if (this.taskItemData?.enablePickUp) {
@@ -39,11 +34,11 @@ export  struct TaskItemCard{
       case TaskTypeEunm.Line.toString(): //在途
       case TaskTypeEunm.Change.toString()://改签
       case TaskTypeEunm.Delivered.toString()://已交货
+     case TaskTypeEunm.Finish.toString()://已完成
         return true
       default :
         return false
     }
-
     return false
   }
 
@@ -114,7 +109,7 @@ export  struct TaskItemCard{
           .fontColor($r("app.color.white"))
           .fontSize(14)
           .height(32)
-          // .enabled(this.getBtnEnable())
+          .enabled(this.getBtnEnable())
           .onClick(()=>{
             this.gotoTaskDatail()
           })
