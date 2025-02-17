@@ -1,8 +1,8 @@
 @Component
 export struct CardItem{
    showBottomBorder:boolean=true
-  leftTitle:string=""
-  rightValue:string=""
+   leftTitle:string=""
+  @Prop rightValue:string=""
   showRightArrow:boolean=true
   onRightClick:()=>void=()=>{}
   build() {
