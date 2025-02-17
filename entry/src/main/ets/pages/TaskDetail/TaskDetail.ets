@@ -239,6 +239,7 @@ getBottomBtn(){
       .onClick(()=>{
         //提货
         this.btnPickUp()
+        router.back()
       })
   }else if (this.taskDetailDateInfo.status  === TaskTypeEunm.Line){
     Button('上报异常')
