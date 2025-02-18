@@ -11,6 +11,10 @@
     {
       "name": "EntryAbility_label",
       "value": "顺丰速达6.0"
+    },
+    {
+      "name": "reason",
+      "value": "进行定位精确"
     }
   ]
 }

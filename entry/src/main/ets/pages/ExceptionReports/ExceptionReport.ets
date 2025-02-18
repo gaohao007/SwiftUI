@@ -98,7 +98,10 @@ struct ExceptionReport {
               }
             })
             CardItem({
-              leftTitle: "上报位置", rightValue: "请选择"
+              leftTitle: "上报位置", rightValue: "请选择",
+              onRightClick:()=>{
+                router.pushUrl({url:"pages/selectLocation/SelectLocation"})
+              }
             })
             CardItem({
               leftTitle: "异常类型", rightValue: this.exceptionParams.exceptionType||"请选择",

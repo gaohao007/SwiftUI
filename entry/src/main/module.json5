@@ -10,7 +10,25 @@
       "2in1"
     ],
     "requestPermissions": [
-      {"name": "ohos.permission.INTERNET"}
+      {"name": "ohos.permission.INTERNET"},
+      {
+        "name": "ohos.permission.LOCATION",
+        "reason": "$string:reason",
+        "usedScene": {                      //必填：权限使用的场景
+          "abilities": ["EntryAbility"],    //需要使用该权限的模块名称
+          "when": "always"                  //使用权限的时机：inuse(只允许前台运行时), always(前后台运行都可以)
+        }
+
+      },
+      {
+        "name": "ohos.permission.APPROXIMATELY_LOCATION",
+        "reason":"$string:reason",
+        "usedScene": {                      //必填：权限使用的场景
+          "abilities": ["EntryAbility"],    //需要使用该权限的模块名称
+          "when": "always"                  //使用权限的时机：inuse(只允许前台运行时), always(前后台运行都可以)
+        }
+
+      }
     ],
     "deliveryWithInstall": true,
     "installationFree": false,
