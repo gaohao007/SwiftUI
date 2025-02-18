@@ -37,16 +37,19 @@
       zoom: zoom,
       center:[114.298572,30.584355] ,//地图中心点坐标
     });
-    function setLocation(latitude,longtitude){
-            map.setZoomAndCenter(zoom,[longtitude,latitude])
-       //创建一个 Marker 实例：
-    const marker = new AMap.Marker({
-    position: new AMap.LngLat(longtitude,latitude), //经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
-});
-//将创建的点标记添加到已有的地图实例：
-map.add(marker);
-    }
+      //定义定位的方法
+    function setLocation(lon, lat){
+        map.setZoomAndCenter(zoom, [lon, lat]) //设置中心的位置
 
+        //设置当前位置的标记
+        var marker = new AMap.Marker({
+            map: map,
+            icon: "https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
+            position: [lon, lat]
+        });
+        map.add(marker)
+
+    }
 </script>
 </body>
 </html>

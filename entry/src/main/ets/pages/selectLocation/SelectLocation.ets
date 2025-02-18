@@ -5,6 +5,8 @@ import { abilityAccessCtrl, bundleManager, common, Permissions } from '@kit.Abil
 import { geoLocationManager } from '@kit.LocationKit';
 import { PermissionAuth } from '../../utils';
 import { promptAction } from '@kit.ArkUI';
+import { mapCommon,map } from '@kit.MapKit';
+
 
 
 /**
@@ -117,8 +119,21 @@ async   getLocation(){
 
          Web({src:$rawfile("location.html"),controller:this.webController})
            .height('100%')
-           .onPageEnd(()=>{
+           .onPageEnd(async ()=>{
+             try {
+               //页面加载玩,调用js
+               const res = await geoLocationManager.getCurrentLocation()
+               let wgs84Position: mapCommon.LatLng = {
+                 latitude: res.latitude,//经度
+                 longitude: res.longitude //维度
+               };
+               // 转换经纬度坐标
+               let gcj02Position: mapCommon.LatLng =
+                 map.convertCoordinateSync(mapCommon.CoordinateType.WGS84, mapCommon.CoordinateType.GCJ02,  wgs84Position);
+               this.webController.runJavaScript(`setLocation(${gcj02Position.longitude}, ${gcj02Position.latitude})`)
+             } catch (err) {
 
+             }
            })
 
 
