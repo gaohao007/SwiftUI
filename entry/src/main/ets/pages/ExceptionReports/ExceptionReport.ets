@@ -1,7 +1,10 @@
 import dayjs from '@hview/dayjs'
-import { Card, CardItem, NavBar, PictureUpload } from '../../components'
+import { Card, CardItem, NavBar,SelectCard, PictureUpload } from '../../components'
 import { app_top_Height } from '../../constants'
-import {  ExceptionParams,ExceptionParamsModel } from '../../model'
+import { CommonRouterParams, ExceptionParams,ExceptionParamsModel, ImageList } from '../../model'
+import { Log } from '@abner/log'
+import { router } from '@kit.ArkUI'
+import { it } from '@ohos/hypium'
 
 
 @Entry
@@ -9,6 +12,68 @@ import {  ExceptionParams,ExceptionParamsModel } from '../../model'
 struct ExceptionReport {
   maxLength: number = 50
   @State exceptionParams:ExceptionParams= new ExceptionParamsModel({} as ExceptionParams)
+ aboutToAppear(): void {
+  const params = router.getParams() as  CommonRouterParams
+   if (params && params.id) {
+     this.exceptionParams.transportTaskId =params.id
+   }
+  }
+
+  typeController:CustomDialogController = new  CustomDialogController({
+    builder:SelectCard({
+      cardContent:()=>{
+        this.getCardContent()
+      },
+      confirm:()=>{
+        this.exceptionParams.exceptionType = this.exceptionErrorList[this.selectIndex]
+      }
+    }),
+    customStyle:true,
+    autoCancel:false,
+    alignment:DialogAlignment.Bottom
+  })
+//异常类型
+  exceptionErrorList:string[]=[
+    "发动机启动困难",
+    "不着车、漏油",
+    "照明失灵",
+    "有异常响动",
+    "排烟异常、温度异常",
+    "其他问题"
+  ]
+@State selectIndex:number=-1
+  @Builder
+  getCardContent(){
+    ForEach(this.exceptionErrorList,(item:string,index:number)=>{
+          this.getSingleItem({name:item,index:index} as ExceptionItemClass)
+    })
+  }
+ @Builder
+ getSingleItem(item:ExceptionItemClass){
+    Row(){
+        Text(item.name).fontSize(14).fontWeight(500).fontColor($r("app.color.text_primary"))
+      Image(this.selectIndex === item.index?$r("app.media.ic_check_true"):$r("app.media.ic_check_false"))
+        .width(32)
+        .aspectRatio(1)
+        .onClick(()=>{
+          this.selectIndex = item.index
+        })
+    }.width('100%')
+   .height(50)
+   .justifyContent(FlexAlign.SpaceBetween)
+   .border({width:{bottom:1},color:$r("app.color.background_divider")})
+ }
+
+
+
+
+
+
+
+
+
+
+
   build() {
     Column() {
       Row()
@@ -20,7 +85,7 @@ struct ExceptionReport {
         Column() {
           Card() {
             CardItem({
-              leftTitle: "异常时间", rightValue: "请选择", onRightClick: () => {
+              leftTitle: "异常时间", rightValue:this.exceptionParams.exceptionTime || "请选择", onRightClick: () => {
                 //弹出时间框，选择时间
                 DatePickerDialog.show({
                   showTime: true,
@@ -36,7 +101,10 @@ struct ExceptionReport {
               leftTitle: "上报位置", rightValue: "请选择"
             })
             CardItem({
-              leftTitle: "异常类型", rightValue: "请选择"
+              leftTitle: "异常类型", rightValue: this.exceptionParams.exceptionType||"请选择",
+              onRightClick:()=>{
+                this.typeController.open()
+              }
             })
             CardItem({
               leftTitle: "异常描述",
@@ -45,7 +113,7 @@ struct ExceptionReport {
              showRightArrow:false
             })
 
-            TextArea({ placeholder: "请输入异常描述" })
+            TextArea({ placeholder: "请输入异常描述",text:this.exceptionParams.exceptionDescribe || "" })
               .backgroundColor($r("app.color.background_page"))
               .height(130)
               .fontSize(14)
@@ -69,9 +137,9 @@ struct ExceptionReport {
             PictureUpload({
               title: "上传图片（最多6张）",
               maxNumber: 6,
-
-              onListChange: () => {
-
+              ImageList:this.exceptionParams.exceptionImagesList||[],
+              onListChange: (imglist:ImageList[]) => {
+                  this.exceptionParams.exceptionImagesList = imglist
               }
             })
             Row().height(10)
@@ -84,6 +152,9 @@ struct ExceptionReport {
           .width(200)
           .height(50)
           .backgroundColor($r("app.color.primary_disabled"))
+          .onClick(()=>{
+            Log.info(JSON.stringify(this.exceptionParams))
+          })
       }
       .justifyContent(FlexAlign.Center)
       .width('100%')
@@ -94,4 +165,9 @@ struct ExceptionReport {
     .width('100%')
     .backgroundColor($r("app.color.background_page"))
   }
+}
+
+class  ExceptionItemClass{
+  name:string=''
+  index:number=-1
 }
