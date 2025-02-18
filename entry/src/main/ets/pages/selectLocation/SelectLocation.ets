@@ -132,7 +132,7 @@ async   getLocation(){
                  map.convertCoordinateSync(mapCommon.CoordinateType.WGS84, mapCommon.CoordinateType.GCJ02,  wgs84Position);
                this.webController.runJavaScript(`setLocation(${gcj02Position.longitude}, ${gcj02Position.latitude})`)
              } catch (err) {
-
+               AlertDialog.show({ message: JSON.stringify(err) })
              }
            })
 
