@@ -1,6 +1,6 @@
 import { promptAction, router } from '@kit.ArkUI';
 import { LoginForm, LoginFormModel } from '../../model';
-import { TOKEN_KEY, } from '../../constants';
+import { app_top_Height, TOKEN_KEY, } from '../../constants';
 import {Log} from "@abner/log"
 import { UserSettingClass } from '../../utils/setting';
 import { login } from '../../api/user';
@@ -22,6 +22,10 @@ struct Login {
 
   build() {
     Column({space:15}){
+
+      Row().width('100%')
+        .height(AppStorage.get(app_top_Height))
+        .backgroundColor($r("app.color.white"))
         Image($r("app.media.icon"))
           .height(200)
           .width(200)
@@ -94,7 +98,6 @@ struct Login {
     }
     .height('100%')
     .width('100%')
-
     .backgroundColor('#0588e0')
 
   }
@@ -106,10 +109,7 @@ struct Login {
     return false
   }
 
-
-
   async login(data:LoginForm){
-
     try {
       this.isShow=true
       const token = await login(data)

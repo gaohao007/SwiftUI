@@ -41,25 +41,32 @@ struct Index {
 }
 
   build() {
-    Tabs({barPosition:BarPosition.End,index:2}){
-      ForEach(this.tabsData,(item:TabClass)=>{
-        TabContent(){
-          if (item.name === 'Task') {
-            TaskTabs()
-          }else  if (item.name === 'Message'){
-            Text('消息组件')
-          }else {
-            Mine()
-          }
-        }.tabBar(this.getTabBar(item))
+    Column(){
+      Row().width('100%')
+        .height(AppStorage.get(app_top_Height))
+        .backgroundColor($r("app.color.white"))
+      Tabs({barPosition:BarPosition.End,index:2}){
+        ForEach(this.tabsData,(item:TabClass)=>{
+          TabContent(){
+            if (item.name === 'Task') {
+              TaskTabs()
+            }else  if (item.name === 'Message'){
+              Text('消息组件')
+            }else {
+              Mine()
+            }
+          }.tabBar(this.getTabBar(item))
+        })
+      }
+      .onChange((index:number)=>{
+        this.currentName = this.tabsData[index].name!
+      })
+      .animationDuration(300)
+      .padding({
+        top:AppStorage.get<number>(app_top_Height),
+        bottom:AppStorage.get<number>(app_bottom_height)
       })
     }
-    .onChange((index:number)=>{
-      this.currentName = this.tabsData[index].name!
-    })
-    .animationDuration(300)
-    .padding({top:AppStorage.get<number>(app_top_Height),
-      bottom:AppStorage.get<number>(app_bottom_height)
-    })
+
   }
 }
