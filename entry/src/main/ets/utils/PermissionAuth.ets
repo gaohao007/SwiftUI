@@ -10,8 +10,9 @@ export class PermissionAuth{
       PermissionAuth.permissionAuth = new PermissionAuth()
     }
     return PermissionAuth.permissionAuth
+
   }
-       checkPermission(permission:Permissions[]){
+   checkPermission(permission:Permissions[]){
     //创建一个授权管理器对象
     const manager = abilityAccessCtrl.createAtManager()
     const  appInfo =bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION)

@@ -113,8 +113,18 @@ async   getLocation(){
       Row().width('100%').height(AppStorage.get(app_top_Height))
         .backgroundColor($r("app.color.white"))
 
-      NavBar({title:"当前位置"})
-     Web({src:$rawfile("location.html"),controller:this.webController})
+        NavBar({title:"当前位置"})
+
+         Web({src:$rawfile("location.html"),controller:this.webController})
+           .height('100%')
+           .onPageEnd(()=>{
+
+           })
+
+
+
+
+
       Column(){
         Card(){
           CardItem({leftTitle:'人民广场',rightValue:"100m以内"})
