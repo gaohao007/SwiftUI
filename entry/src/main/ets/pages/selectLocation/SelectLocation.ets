@@ -3,10 +3,10 @@ import { app_top_Height } from '../../constants';
 import { webview } from '@kit.ArkWeb';
 import { abilityAccessCtrl, bundleManager, common, Permissions } from '@kit.AbilityKit';
 import { geoLocationManager } from '@kit.LocationKit';
-import { PermissionAuth } from '../../utils';
+import { PermissionAuth, WebSdkClass } from '../../utils';
 import { promptAction } from '@kit.ArkUI';
 import { mapCommon,map } from '@kit.MapKit';
-
+import { Log } from '@abner/log';
 
 
 /**
@@ -24,22 +24,24 @@ import { mapCommon,map } from '@kit.MapKit';
 @Component
 struct SelectLocation {
 
-  webController: webview.WebviewController = new webview.WebviewController()
+  // webController: webview.WebviewController = new webview.WebviewController()
 
   peemission:Permissions[]=["ohos.permission.LOCATION","ohos.permission.APPROXIMATELY_LOCATION"]
 
-
+ webSdk :WebSdkClass = new WebSdkClass()
 
   aboutToAppear(): void {
     // this.checkPermisson()
     this.checkPermissionByUtil()
+
+    WebSdkClass.webController = new webview.WebviewController()
   }
   
   async checkPermissionByUtil(){
     try {
       if (PermissionAuth.getInstance().checkPermission(this.peemission)) {
         //已经授权
-        this.getLocation()
+        // this.getLocation()
       }else {
         //没有授权
         await PermissionAuth.getInstance().requestPermission(this.peemission)
@@ -117,24 +119,33 @@ async   getLocation(){
 
         NavBar({title:"当前位置"})
 
-         Web({src:$rawfile("location.html"),controller:this.webController})
+         Web({src:$rawfile("location.html"),controller:WebSdkClass.webController})
            .height('100%')
-           .onPageEnd(async ()=>{
-             try {
-               //页面加载玩,调用js
-               const res = await geoLocationManager.getCurrentLocation()
-               let wgs84Position: mapCommon.LatLng = {
-                 latitude: res.latitude,//经度
-                 longitude: res.longitude //维度
-               };
-               // 转换经纬度坐标
-               let gcj02Position: mapCommon.LatLng =
-                 map.convertCoordinateSync(mapCommon.CoordinateType.WGS84, mapCommon.CoordinateType.GCJ02,  wgs84Position);
-               this.webController.runJavaScript(`setLocation(${gcj02Position.longitude}, ${gcj02Position.latitude})`)
-             } catch (err) {
-               AlertDialog.show({ message: JSON.stringify(err) })
-             }
+           .javaScriptProxy({
+             name:"swift",
+             object:this.webSdk,
+             methodList:["setCurrentLocation"],
+             controller:WebSdkClass.webController
            })
+           // .onPageEnd(async ()=>{
+           //   try {
+           //     //页面加载玩,调用js
+           //     const res = await geoLocationManager.getCurrentLocation()
+           //     Log.info(JSON.stringify(res))
+           //     //坐标的纠正：将wgs84标准转换成gcj02标准
+           //     let wgs84Position: mapCommon.LatLng = {
+           //       latitude: res.latitude,
+           //       longitude: res.longitude
+           //     };
+           //     let gcj02Position: mapCommon.LatLng =
+           //       await map.convertCoordinate(mapCommon.CoordinateType.WGS84, mapCommon.CoordinateType.GCJ02,wgs84Position);
+           //      Log.info(JSON.stringify(gcj02Position))
+           //
+           //     this.webController.runJavaScript(`setLocation(${gcj02Position.longitude}, ${gcj02Position.latitude})`)
+           //   } catch (err) {
+           //     AlertDialog.show({ message: JSON.stringify(err) })
+           //   }
+           // })
 
 
 

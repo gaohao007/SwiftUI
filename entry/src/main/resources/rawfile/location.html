@@ -32,7 +32,7 @@
 </script>
 <script type="text/javascript">
     //地图初始化应该在地图容器div已经添加到DOM树之后
-    var zoom =100
+    var zoom =18
     var map = new AMap.Map("container", {
       zoom: zoom,
       center:[114.298572,30.584355] ,//地图中心点坐标
@@ -48,7 +48,10 @@
             position: [lon, lat]
         });
         map.add(marker)
-
+    }
+        window.onload=function(){
+        //调用鸿蒙端的业务方法
+        window.swift.setCurrentLocation()
     }
 </script>
 </body>
