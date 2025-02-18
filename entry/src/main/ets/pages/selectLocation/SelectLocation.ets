@@ -3,6 +3,8 @@ import { app_top_Height } from '../../constants';
 import { webview } from '@kit.ArkWeb';
 import { abilityAccessCtrl, bundleManager, common, Permissions } from '@kit.AbilityKit';
 import { geoLocationManager } from '@kit.LocationKit';
+import { PermissionAuth } from '../../utils';
+import { promptAction } from '@kit.ArkUI';
 
 
 /**
@@ -24,9 +26,48 @@ struct SelectLocation {
 
   peemission:Permissions[]=["ohos.permission.LOCATION","ohos.permission.APPROXIMATELY_LOCATION"]
 
+
+
   aboutToAppear(): void {
-    this.checkPermisson()
+    // this.checkPermisson()
+    this.checkPermissionByUtil()
   }
+  
+  async checkPermissionByUtil(){
+    try {
+      if (PermissionAuth.getInstance().checkPermission(this.peemission)) {
+        //已经授权
+        this.getLocation()
+      }else {
+        //没有授权
+        await PermissionAuth.getInstance().requestPermission(this.peemission)
+      }
+    } catch (err) {
+
+      promptAction.showDialog({
+        title:"权限提示",
+        message:"定位功能需要权限,请在系统设置中打开定位权限",
+        alignment:DialogAlignment.Center,
+        buttons:[
+          {text:"取消",color:$r("app.color.primary_disabled")},
+          {text:"打开",color:$r("app.color.primary")}
+        ]
+      }).then(res=>{
+        if (res.index ==1) {
+          PermissionAuth.getInstance().openPermissionSettingPage()
+        }
+      })
+    }
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
   //检查权限
   async checkPermisson(){
