@@ -4,9 +4,8 @@ import { webview } from '@kit.ArkWeb';
 import { abilityAccessCtrl, bundleManager, common, Permissions } from '@kit.AbilityKit';
 import { geoLocationManager } from '@kit.LocationKit';
 import { PermissionAuth, WebSdkClass } from '../../utils';
-import { promptAction } from '@kit.ArkUI';
-import { mapCommon,map } from '@kit.MapKit';
-import { Log } from '@abner/log';
+import { promptAction, router } from '@kit.ArkUI';
+
 
 
 /**
@@ -29,12 +28,17 @@ struct SelectLocation {
   peemission:Permissions[]=["ohos.permission.LOCATION","ohos.permission.APPROXIMATELY_LOCATION"]
 
  webSdk :WebSdkClass = new WebSdkClass()
+  @State list:AddressItem[]=[]
 
   aboutToAppear(): void {
     // this.checkPermisson()
     this.checkPermissionByUtil()
 
     WebSdkClass.webController = new webview.WebviewController()
+    WebSdkClass.context = getContext(this)
+    WebSdkClass.context.eventHub.on('search_near_place',(json:string)=>{
+      this.list = JSON.parse(json) as AddressItem[]
+    })
   }
   
   async checkPermissionByUtil(){
@@ -124,7 +128,7 @@ async   getLocation(){
            .javaScriptProxy({
              name:"swift",
              object:this.webSdk,
-             methodList:["setCurrentLocation"],
+             methodList:["setCurrentLocation", "alert", "receiveNearPlace"],
              controller:WebSdkClass.webController
            })
            // .onPageEnd(async ()=>{
@@ -153,10 +157,19 @@ async   getLocation(){
 
       Column(){
         Card(){
-          CardItem({leftTitle:'人民广场',rightValue:"100m以内"})
-          CardItem({leftTitle:'步行街',rightValue:"100m以内"})
-          CardItem({leftTitle:'长征医院',rightValue:"100m以内"})
-          CardItem({leftTitle:'内环高架',rightValue:"100m以内"})
+         ForEach(this.list,(item:AddressItem,index:number)=>{
+           CardItem({
+             leftTitle:item.address,rightValue:item.distance+"m以内",
+             onRightClick:()=>{
+               router.back({
+                 url:"pages/ExceptionReports/ExceptionReport",
+                 params:{
+                   address:item.address
+                 }
+               })
+             }
+           })
+         })
         }
       }.position({ y: "100%" })
         .translate({ y: -280})
@@ -165,4 +178,8 @@ async   getLocation(){
     .width('100%')
     .backgroundColor($r("app.color.background_page"))
   }
+}
+class AddressItem{
+  address:string=""
+  distance:number=0
 }

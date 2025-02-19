@@ -2,4 +2,5 @@
 export class CommonRouterParams {
   id?: string = ""
   planTime?:string=""
+  address?:string=""
 }

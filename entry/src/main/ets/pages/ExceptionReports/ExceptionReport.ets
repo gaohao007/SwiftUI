@@ -12,12 +12,16 @@ import { it } from '@ohos/hypium'
 struct ExceptionReport {
   maxLength: number = 50
   @State exceptionParams:ExceptionParams= new ExceptionParamsModel({} as ExceptionParams)
- aboutToAppear(): void {
+
+
+  aboutToAppear(): void {
   const params = router.getParams() as  CommonRouterParams
    if (params && params.id) {
      this.exceptionParams.transportTaskId =params.id
    }
   }
+
+
 
   typeController:CustomDialogController = new  CustomDialogController({
     builder:SelectCard({
@@ -32,7 +36,9 @@ struct ExceptionReport {
     autoCancel:false,
     alignment:DialogAlignment.Bottom
   })
-//异常类型
+
+
+  //异常类型
   exceptionErrorList:string[]=[
     "发动机启动困难",
     "不着车、漏油",
@@ -41,14 +47,18 @@ struct ExceptionReport {
     "排烟异常、温度异常",
     "其他问题"
   ]
-@State selectIndex:number=-1
+
+
+  @State selectIndex:number=-1
+
   @Builder
   getCardContent(){
     ForEach(this.exceptionErrorList,(item:string,index:number)=>{
           this.getSingleItem({name:item,index:index} as ExceptionItemClass)
     })
   }
- @Builder
+
+  @Builder
  getSingleItem(item:ExceptionItemClass){
     Row(){
         Text(item.name).fontSize(14).fontWeight(500).fontColor($r("app.color.text_primary"))
@@ -66,7 +76,15 @@ struct ExceptionReport {
 
 
 
-
+onPageShow(): void {
+      const params  = router.getParams() as CommonRouterParams
+  if (params && params.id) {
+    this.exceptionParams.transportTaskId = params.id
+  }
+  if (params && params.address) {
+    this.exceptionParams.exceptionPlace = params.address
+  }
+  }
 
 
 

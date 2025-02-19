@@ -48,6 +48,20 @@
             position: [lon, lat]
         });
         map.add(marker)
+        map.plugin(['AMap.PlaceSearch'], function() {
+            var PlaceSearchOptions = { //设置PlaceSearch属性
+                map:map,//在地图中显示对应的标记
+                pageSize: 4, //每页结果数,默认10
+                pageIndex: 1, //请求页码，默认1
+                extensions: "base" //返回信息详略，默认为base（基本信息）
+            };
+            var MSearch = new AMap.PlaceSearch(PlaceSearchOptions); //构造PlaceSearch类
+            AMap.Event.addListener(MSearch, "complete",(result)=>{
+                window.swift.receiveNearPlace(JSON.stringify(result.poiList.pois))
+            } ); //返回结果
+            MSearch.searchNearBy('停车场',[lon,lat]); //关键字查询
+        });
+
     }
         window.onload=function(){
         //调用鸿蒙端的业务方法

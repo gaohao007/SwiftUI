@@ -6,7 +6,7 @@ import { mapCommon,map } from "@kit.MapKit";
 
 export class WebSdkClass{
   static webController:webview.WebviewController | null = null
-
+  static context: Context | null = null
   async setCurrentLocation(){
     try {
           //页面加载玩,调用js
@@ -25,6 +25,15 @@ export class WebSdkClass{
       AlertDialog.show({ message: JSON.stringify(err) })
     }
   }
+  alter(message:string){
+    AlertDialog.show({message:message})
+  }
+  receiveNearPlace(json:string){
+WebSdkClass.context?.eventHub.emit("search_near_place",json)
+
+  }
+
+
 
 }
 
