@@ -116,7 +116,7 @@ onPageShow(): void {
               }
             })
             CardItem({
-              leftTitle: "上报位置", rightValue: "请选择",
+              leftTitle: "上报位置", rightValue: this.exceptionParams.exceptionPlace ||"请选择",
               onRightClick:()=>{
                 router.pushUrl({url:"pages/selectLocation/SelectLocation"})
               }

@@ -11,12 +11,14 @@ export struct CardItem{
             Text(this.leftTitle)
               .fontWeight(400)
               .fontColor($r("app.color.text_primary"))
+              .contrast(30)
           }
           Row(){
             if (this.rightValue){
               Text(this.rightValue)
                 .fontWeight(400)
                 .fontColor($r("app.color.text_primary"))
+                .contrast(30)
             }
             if (this.showRightArrow){
               Image($r("app.media.ic_btn_more"))
