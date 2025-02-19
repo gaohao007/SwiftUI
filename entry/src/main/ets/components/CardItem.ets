@@ -11,14 +11,19 @@ export struct CardItem{
             Text(this.leftTitle)
               .fontWeight(400)
               .fontColor($r("app.color.text_primary"))
-              .contrast(30)
+              .constraintSize({maxWidth:"40%"})
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .layoutWeight(1)
           }
           Row(){
             if (this.rightValue){
               Text(this.rightValue)
                 .fontWeight(400)
                 .fontColor($r("app.color.text_primary"))
-                .contrast(30)
+                .constraintSize({maxWidth:"60%"})
+                .maxLines(1)
+                .textOverflow({ overflow: TextOverflow.Ellipsis })
             }
             if (this.showRightArrow){
               Image($r("app.media.ic_btn_more"))

@@ -1,6 +1,7 @@
 import { TaskInfoListModel, TaskListParams,TaskDetailInfo,PickUpParams, DeliverParams,
   CarRecordParams,
-  DelayParams} from "../model";
+  DelayParams,
+  ExceptionParams} from "../model";
 
 import { Request_API } from "../utils";
 //任务列表
@@ -29,5 +30,10 @@ export function  carRecord (data: CarRecordParams) {
 //延迟提货
 
 export function  delay (data: DelayParams) {
-  return Request_API.put<null>("/tasks/delay", data)
+  return Request_API.put<null>("tasks/delay", data)
+}
+
+//异常处理
+export function  exceptionReport (data: ExceptionParams) {
+  return Request_API.post<null>("tasks/reportException", data)
 }

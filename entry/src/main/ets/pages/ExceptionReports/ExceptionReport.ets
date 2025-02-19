@@ -1,10 +1,10 @@
 import dayjs from '@hview/dayjs'
-import { Card, CardItem, NavBar,SelectCard, PictureUpload } from '../../components'
+import { Card, CardItem, NavBar,SelectCard, PictureUpload, Loading, UploadFiles } from '../../components'
 import { app_top_Height } from '../../constants'
 import { CommonRouterParams, ExceptionParams,ExceptionParamsModel, ImageList } from '../../model'
 import { Log } from '@abner/log'
 import { router } from '@kit.ArkUI'
-import { it } from '@ohos/hypium'
+import { exceptionReport } from '../../api/task'
 
 
 @Entry
@@ -12,8 +12,6 @@ import { it } from '@ohos/hypium'
 struct ExceptionReport {
   maxLength: number = 50
   @State exceptionParams:ExceptionParams= new ExceptionParamsModel({} as ExceptionParams)
-
-
   aboutToAppear(): void {
   const params = router.getParams() as  CommonRouterParams
    if (params && params.id) {
@@ -172,9 +170,11 @@ onPageShow(): void {
         Button("提交")
           .width(200)
           .height(50)
-          .backgroundColor($r("app.color.primary_disabled"))
+          .enabled(this.getBtnStatus())
+          .backgroundColor(this.getBtnStatus()?$r("app.color.primary"):$r("app.color.primary_disabled"))
           .onClick(()=>{
             Log.info(JSON.stringify(this.exceptionParams))
+            this.exceptionReport()
           })
       }
       .justifyContent(FlexAlign.Center)
@@ -186,6 +186,41 @@ onPageShow(): void {
     .width('100%')
     .backgroundColor($r("app.color.background_page"))
   }
+
+  layer:CustomDialogController=new CustomDialogController({
+    builder:Loading({loadingText:"数据正在处理中,请耐心等待!"}),
+    customStyle:true,
+    alignment:DialogAlignment.Center,
+    autoCancel:false
+  })
+
+  async exceptionReport(){
+    try {
+      this.layer.open()
+      if (this.exceptionParams.exceptionImagesList?.length) {
+        this.exceptionParams.exceptionImagesList = await
+        UploadFiles(this.exceptionParams.exceptionImagesList)
+      }
+      await exceptionReport(this.exceptionParams)
+      AlertDialog.show({message:"上报异常成功!"})
+      router.back()
+    } catch (err) {
+      AlertDialog.show({message:"上报异常失败!"})
+    } finally {
+      this.layer.close()
+    }
+  }
+  getBtnStatus(){
+    if (
+      this.exceptionParams.transportTaskId &&  this.exceptionParams.exceptionType &&
+    this.exceptionParams.exceptionTime && this.exceptionParams.exceptionPlace &&
+      this.exceptionParams.exceptionImagesList?.length||[].length>0 && this.exceptionParams.exceptionDescribe
+    ) {
+      return true
+    }
+     return false
+  }
+
 }
 
 class  ExceptionItemClass{

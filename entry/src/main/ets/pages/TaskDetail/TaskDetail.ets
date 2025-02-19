@@ -20,6 +20,7 @@ struct TaskDetail {
 
   @State
     taskDetailDateInfo:TaskDetailInfo = new TaskDetailInfoModel({} as TaskDetailInfo)
+
   layer:CustomDialogController=new CustomDialogController({
     builder:Loading({loadingText:"数据正在处理中,请耐心等待!"}),
     customStyle:true,
