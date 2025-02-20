@@ -18,8 +18,6 @@ export  struct TaskItemCard{
         return "改签"
       case  TaskTypeEunm.Delivered.toString():
         return "回车登记"
-      case  TaskTypeEunm.Finish.toString():
-        return "详情"
       default:
         return ""
     }
@@ -46,6 +44,7 @@ export  struct TaskItemCard{
     Column(){
       Row() {
         Text(`任务编号：${this.taskItemData.transportTaskId}`)
+          .copyOption(CopyOptions.InApp)
           .fontWeight(500)
           .fontColor($r("app.color.text_primary"))
           .lineHeight(22)
@@ -104,23 +103,36 @@ export  struct TaskItemCard{
             .margin({ top: 4 })
         }.alignItems(HorizontalAlign.Start)
 
-        Button(this.getBtnText())
-          .backgroundColor(this.getBtnEnable() ? $r("app.color.primary") : $r("app.color.primary_disabled"))
-          .fontColor($r("app.color.white"))
-          .fontSize(14)
-          .height(32)
-          .enabled(this.getBtnEnable())
-          .onClick(()=>{
-            this.gotoTaskDatail()
-          })
+
+        if (this.taskItemData.status != TaskTypeEunm.Finish.toString()){
+          Button(this.getBtnText())
+            .backgroundColor(this.getBtnEnable() ? $r("app.color.primary") : $r("app.color.primary_disabled"))
+            .fontColor($r("app.color.white"))
+            .fontSize(14)
+            .height(32)
+            .enabled(this.getBtnEnable())
+            .onClick(()=>{
+              this.gotoTaskDatail()
+            })
+        }
+
       }
       .width('100%')
       .justifyContent(FlexAlign.SpaceBetween)
-    }.backgroundColor($r('app.color.white'))
+    }
+    .backgroundColor($r('app.color.white'))
     .borderRadius(8)
     .margin({left:15,right:15,top:15})
     .padding(19)
+    .onClick(()=>{
+      if ( this.taskItemData.status  == TaskTypeEunm.Finish.toString()) {
+        this.gotoTaskDatail()
+      }
+    })
   }
+
+
+
   gotoTaskDatail(){
     router.pushUrl({
       url:"pages/TaskDetail/TaskDetail",

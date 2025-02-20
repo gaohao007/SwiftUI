@@ -89,15 +89,17 @@ struct TaskDetail {
             .margin({left:12})
         }.margin({top:14})
       }.alignItems(HorizontalAlign.Start)
-      Column(){
-        Image($r("app.media.ic_navigation"))
-          .width(22).aspectRatio(1)
-        Text('开始导航')
-          .fontSize(14)
-          .margin({top:10,bottom:10})
+      if (this.taskDetailDateInfo.status == TaskTypeEunm.Line){
+        Column(){
+          Image($r("app.media.ic_navigation"))
+            .width(22).aspectRatio(1)
+          Text('开始导航')
+            .fontSize(14)
+            .margin({top:10,bottom:10})
+        }
+        .justifyContent(FlexAlign.SpaceBetween)
+        .margin({top:22})
       }
-      .justifyContent(FlexAlign.SpaceBetween)
-      .margin({top:22})
     }.width('100%')
     .justifyContent(FlexAlign.SpaceBetween)
     .alignItems(VerticalAlign.Center)
@@ -429,19 +431,27 @@ getBottomBtn(){
                ToggleCard({title:"运输路径",isShowToggleImage:false}){
                  this.getTransportLinesInfo()
                }
+             if (this.taskDetailDateInfo.status === TaskTypeEunm.Line
+               || this.taskDetailDateInfo.status === TaskTypeEunm.Finish
+             ){
                ToggleCard({title:"异常信息",isShowToggleImage:true}){
                  this.getExceptionContent()
                }
+             }
 
                if (this.taskDetailDateInfo.status === TaskTypeEunm.Watting
-               || this.taskDetailDateInfo.status === TaskTypeEunm.Delivered) {
+               || this.taskDetailDateInfo.status === TaskTypeEunm.Delivered
+               || this.taskDetailDateInfo.status === TaskTypeEunm.Finish
+               ) {
                  ToggleCard({title:"提货信息",isShowToggleImage:false}){
                    this.getPickUpContent()
                  }
                }
 
                if (this.taskDetailDateInfo.status === TaskTypeEunm.Line
-               ||  this.taskDetailDateInfo.status === TaskTypeEunm.Delivered) {
+               ||  this.taskDetailDateInfo.status === TaskTypeEunm.Delivered
+                 || this.taskDetailDateInfo.status === TaskTypeEunm.Finish
+               ) {
                  ToggleCard({title:"交货信息",isShowToggleImage:false}){
                    this.getDriverContent()
                  }
@@ -454,7 +464,10 @@ getBottomBtn(){
          }else {
            Skeleton()
          }
-       this.getBottomBtn()
+
+       if (this.taskDetailDateInfo.status != TaskTypeEunm.Finish){
+         this.getBottomBtn()
+       }
 
     }
     .height('100%')

@@ -52,7 +52,7 @@ export struct TaskTabs {
                 page:1,
                 pageSize:5
               } as TaskListParams) })
-           } else {
+           } else if (item.name === 'finish') {
              Waitting({queryParams: new TaskListParamsModel({
                status:TaskTypeEunm.Finish,
                page:1,

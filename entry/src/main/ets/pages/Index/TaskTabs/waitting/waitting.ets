@@ -8,6 +8,7 @@ import {
   TaskTypeEunm} from "../../../../model"
 import { TaskItemCard } from "./waittingcardItem"
 import { promptAction } from "@kit.ArkUI"
+import dayjs from "@hview/dayjs"
 
 // 待提货
 @Component
@@ -17,9 +18,9 @@ export  struct Waitting{
 
   @State
 queryParams:TaskListParams = new  TaskListParamsModel({
-  page:1,
-  pageSize:5,
-  status:TaskTypeEunm.Watting
+                  page:1,
+                  pageSize:5,
+                  status:TaskTypeEunm.Watting
 } as TaskListParams)
   @State
     taskListData:TaskList[] = []
@@ -27,6 +28,8 @@ queryParams:TaskListParams = new  TaskListParamsModel({
   @State isLoading:boolean =false
   // 总页数
   @State totalPage:number =1
+
+
   async  getTaskList(append:boolean){
      const  res =  await getTaskList(this.queryParams)
     this.totalPage = res.pages
@@ -63,34 +66,43 @@ queryParams:TaskListParams = new  TaskListParamsModel({
 
 
   build() {
-    Refresh({refreshing:$$this.isRefresh,builder:this.getRefreshDisplay()}){
-      List(){
-        ForEach(this.taskListData,(item:TaskList)=>{
-          ListItem(){
-            TaskItemCard({taskItemData:item})
-          }
 
-        })
+Column(){
+  if (this.queryParams.status === TaskTypeEunm.Finish){
+   this. getSearchForm()
+  }
+
+  Refresh({refreshing:$$this.isRefresh,builder:this.getRefreshDisplay()}){
+    List(){
+      ForEach(this.taskListData,(item:TaskList)=>{
         ListItem(){
-          this.getBottomDisplay()
+          TaskItemCard({taskItemData:item})
         }
-      }.width('100%').height('100%')
-      .onReachEnd(async ()=>{
-        if (this.totalPage>=this.queryParams.page) {
-          if (!this.isLoading) {
-            this.isLoading = true
-            await this.getTaskList(true)
-            this.isLoading = this.totalPage < this.queryParams.page ? true : false
-          }
-        }
+
       })
-    }
-    .onStateChange(async (value:RefreshStatus)=>{
-      this.refreshStatus = value
-      if (value === RefreshStatus.Refresh) {
-        await this.onRefresh()
+      ListItem(){
+        this.getBottomDisplay()
+      }
+    }.width('100%').height('100%')
+    .onReachEnd(async ()=>{
+      if (this.totalPage>=this.queryParams.page) {
+        if (!this.isLoading) {
+          this.isLoading = true
+          await this.getTaskList(true)
+          this.isLoading = this.totalPage < this.queryParams.page ? true : false
+        }
       }
     })
+  }
+  .onStateChange(async (value:RefreshStatus)=>{
+    this.refreshStatus = value
+    if (value === RefreshStatus.Refresh) {
+      await this.onRefresh()
+    }
+  })
+}.height('100%')
+
+
 
   }
   async  onRefresh(){
@@ -133,6 +145,131 @@ queryParams:TaskListParams = new  TaskListParamsModel({
     .height(50)
     .justifyContent(FlexAlign.Center)
   }
+//搜索框
+@Builder
+  getSearchForm(){
+    Column(){
+      Row(){
+        Search({placeholder:"请输入任务编号"})
+          .backgroundColor($r("app.color.background_page"))
+          .height(32)
+          .placeholderFont({size:12})
+          .onSubmit(async (value:string)=>{
+            if (isNaN(parseInt(value))){
+              promptAction.showToast({message:'非数字,请重新输入!'})
+              return
+            }
+            if (value) {
+              try {
+
+                this.layer.open()
+                this.queryParams.transportTaskId = value
+                this.queryParams.startTime=""
+                this.queryParams.endTime =''
+                this.reset =false
+                this.totalPage=0;
+                this.queryParams.page=1
+                const  res = await getTaskList(this.queryParams)
+                this.taskListData = res.items ||[]
+              } catch (err) {
+                promptAction.showToast({message:JSON.stringify(err)})
+              } finally {
+                this.layer.close()
+              }
+            }else{
+              this.getTaskList(true)
+            }
+          })
+      }.width('100%')
+      .padding({left:8,right:8,bottom:5})
 
 
+      Row(){
+        Button(this.queryParams.startTime||'开始时间')
+          .fontSize(12)
+          .width(110)
+          .height(32)
+          .fontColor($r("app.color.text_secondary"))
+          .backgroundColor($r("app.color.background_page"))
+          .onClick(()=>{
+            DatePickerDialog.show({
+              selected:new Date(),
+              alignment:DialogAlignment.Bottom,
+              onDateAccept:(value:Date)=>{
+                this.queryParams.startTime = dayjs(value).format('YYYY-MM-DD')
+              }
+            })
+          })
+        Text('至')
+        Button(this.queryParams.endTime||'结束时间')
+          .fontSize(12)
+          .width(110)
+          .height(32)
+          .fontColor($r("app.color.text_secondary"))
+          .backgroundColor($r("app.color.background_page"))
+          .onClick(()=>{
+            DatePickerDialog.show({
+              selected:new Date(),
+              alignment:DialogAlignment.Bottom,
+              onDateAccept:(value:Date)=>{
+                this.queryParams.endTime = dayjs(value).format('YYYY-MM-DD')
+              }
+            })
+          })
+        Button(this.reset?"重置":'筛选')
+          .width(60)
+          .height(32)
+          .enabled(this.getSearchBtn())
+          .backgroundColor(this.getSearchBtn()?$r("app.color.primary"):$r("app.color.primary_disabled"))
+          .onClick(()=>{
+            this.btnSearch()
+
+          })
+      }.width('100%')
+     .justifyContent(FlexAlign.SpaceAround)
+    }
+    .width('100%')
+    .backgroundColor($r("app.color.white"))
+    .padding(15)
+
+
+  }
+  layer:CustomDialogController=new CustomDialogController({
+    builder:Loading({loadingText:"数据正在处理中,请耐心等待!"}),
+    customStyle:true,
+    alignment:DialogAlignment.Center,
+    autoCancel:false
+  })
+ async  btnSearch(){
+   try {
+     this.layer.open()
+     if (this.reset) {
+       //重置
+       this.queryParams.transportTaskId=""
+       this.queryParams.startTime=""
+       this.queryParams.endTime=""
+      this.reset = false
+     }else {
+      //筛选
+       this.reset = true
+     }
+     this.queryParams.page=1;
+     this.totalPage =1;
+     await this.getTaskList(false)
+
+
+   } catch (err) {
+     AlertDialog.show({message:JSON.stringify(err)})
+   } finally {
+     this.layer.close()
+   }
+  }
+getSearchBtn(){
+  if ((this.queryParams.endTime && this.queryParams.startTime )) {
+    return true
+  }
+  return false
+}
+//筛选
+@State reset:boolean =false
 }
