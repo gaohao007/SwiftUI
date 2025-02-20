@@ -9,6 +9,8 @@
     "pages/CarRecord/CardRecord",
     "pages/delayPickUp/DelayPickUp",
     "pages/ExceptionReports/ExceptionReport",
-    "pages/selectLocation/SelectLocation"
+    "pages/selectLocation/SelectLocation",
+    "pages/ExceptionReports/ExceptionDetail",
+    "pages/Navigation/NavigationPage"
   ]
 }

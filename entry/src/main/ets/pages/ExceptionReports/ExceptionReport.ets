@@ -203,7 +203,12 @@ onPageShow(): void {
       }
       await exceptionReport(this.exceptionParams)
       AlertDialog.show({message:"上报异常成功!"})
-      router.back()
+      router.pushUrl({
+        url:"pages/TaskDetail/TaskDetail",
+        params:{
+          isExceptionReport:true
+        }
+      })
     } catch (err) {
       AlertDialog.show({message:"上报异常失败!"})
     } finally {

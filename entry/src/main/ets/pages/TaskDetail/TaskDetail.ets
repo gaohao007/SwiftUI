@@ -5,12 +5,13 @@ import { deliver, getTaskDetailInfo, pickUp } from '../../api/task'
 import { Loading, NavBar, PictureUpload, ToggleCard, UploadFiles } from '../../components'
 import { CommonRouterParams,
   DeliverParamsModel,
+  ExceptionList,
   ImageList, PickUpParamsModel, TaskDetailInfo, TaskDetailInfoModel,
   TaskTypeEunm } from '../../model'
 import { call } from '@kit.TelephonyKit'
 import { Log } from '@abner/log'
 import { Skeleton } from '../../components/Skeleton'
-import { app_bottom_height, app_top_Height } from '../../constants'
+import {  app_top_Height } from '../../constants'
 
 @Entry
 @Component
@@ -29,12 +30,25 @@ struct TaskDetail {
   })
 
 
-  async aboutToAppear() {
+   aboutToAppear() {
   const params =router.getParams() as CommonRouterParams
     if (params &&  params.id) {
-     await this.getTaskDetailData(params.id)
+      this.getTaskDetailData(params.id)
     }
   }
+  async  onPageShow() {
+  const params = router.getParams() as CommonRouterParams
+    if (params &&   params.isExceptionReport ) {
+     const res:TaskDetailInfo  = await getTaskDetailInfo(this.taskDetailDateInfo.id)
+      this.taskDetailDateInfo.exceptionList = res.exceptionList
+    }
+  }
+  
+  
+  
+  
+  
+  
   async getTaskDetailData(id:string){
     const res = await getTaskDetailInfo(id)
     this.taskDetailDateInfo = res
@@ -59,6 +73,7 @@ struct TaskDetail {
               .fontColor($r("app.color.text_secondary"))
               .margin({left:12})
         }.margin({top:18})
+
         Row(){
           Text('止')
             .fontSize(12)
@@ -341,6 +356,56 @@ getBottomBtn(){
       this.layer.close()
     }
   }
+  // 异常信息
+  @Builder
+  getExceptionContent(){
+   ForEach(this.taskDetailDateInfo.exceptionList,(item:ExceptionList,index:number)=>{
+
+     Row()
+     {
+       Column(){
+
+         Row(){
+           Text('上报时间').fontSize(14).fontColor($r("app.color.text_primary"))
+           Text(item.exceptionTime).fontColor($r("app.color.text_secondary")).margin({left:20})
+         }.height(30).width('100%')
+
+         Row(){
+           Text('异常类型').fontSize(14).fontColor($r("app.color.text_primary"))
+           Text(item.exceptionType).fontColor($r("app.color.text_secondary")).margin({left:20})
+         }.height(30).width('100%')
+
+         Row(){
+           Text('处理结果').fontSize(14).fontColor($r("app.color.text_primary"))
+           Text(item.handleResult).fontColor($r("app.color.text_secondary")).margin({left:20})
+         }.height(30).width('100%')
+
+       }
+       Image($r("app.media.ic_btn_more"))
+         .width(24)
+         .aspectRatio(1)
+         .onClick(()=>{
+            router.pushUrl({
+              url:"pages/ExceptionReports/ExceptionDetail",
+              params:{
+                transmintExceptionDate:item
+              }
+            })
+         })
+
+     }.padding({left:15,right:15})
+     .width('100%')
+     .margin({top:5})
+     .justifyContent(FlexAlign.SpaceBetween)
+     .border({width:{bottom:1},color:$r("app.color.background_divider")})
+
+
+
+   })
+
+  }
+
+
 
 
   build() {
@@ -363,6 +428,9 @@ getBottomBtn(){
 
                ToggleCard({title:"运输路径",isShowToggleImage:false}){
                  this.getTransportLinesInfo()
+               }
+               ToggleCard({title:"异常信息",isShowToggleImage:true}){
+                 this.getExceptionContent()
                }
 
                if (this.taskDetailDateInfo.status === TaskTypeEunm.Watting
