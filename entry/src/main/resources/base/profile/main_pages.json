@@ -11,6 +11,7 @@
     "pages/ExceptionReports/ExceptionReport",
     "pages/selectLocation/SelectLocation",
     "pages/ExceptionReports/ExceptionDetail",
-    "pages/Navigation/NavigationPage"
+    "pages/Navigation/NavigationPage",
+    "pages/Car/CarInfo"
   ]
 }

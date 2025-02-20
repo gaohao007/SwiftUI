@@ -1,3 +1,4 @@
+import { UserCarDataType } from '../model'
 import { UserTaskInfoParamsModel,
   LoginForm,
   UserInfoModel,
@@ -14,6 +15,10 @@ export  async function  login(data:LoginForm):Promise<string>{
 
 export    function getUserTaskInfo(data:UserTaskInfoParamsModel){
    return  Request_API.get<UserTaskInfoModel>("users/taskReport",data)
+}
+//车辆新增
+export    function getCarInfo(){
+  return  Request_API.get<UserCarDataType>("users/truck")
 }
 
 

@@ -155,13 +155,13 @@ Column(){
           .height(32)
           .placeholderFont({size:12})
           .onSubmit(async (value:string)=>{
-            if (isNaN(parseInt(value))){
-              promptAction.showToast({message:'非数字,请重新输入!'})
-              return
-            }
-            if (value) {
-              try {
 
+            if (value) {
+              if (isNaN(parseInt(value))){
+                promptAction.showToast({message:'非数字,请重新输入!'})
+                return
+              }
+              try {
                 this.layer.open()
                 this.queryParams.transportTaskId = value
                 this.queryParams.startTime=""

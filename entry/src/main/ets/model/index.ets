@@ -13,3 +13,5 @@ export  * from "./delivery"
 export  * from "./CarRecord"
 export  * from "./delay"
 export  * from "./ExceptionReport"
+
+export  * from "./car"
