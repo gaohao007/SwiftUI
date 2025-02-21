@@ -6,12 +6,17 @@ import { Loading, NavBar, PictureUpload, ToggleCard, UploadFiles } from '../../c
 import { CommonRouterParams,
   DeliverParamsModel,
   ExceptionList,
-  ImageList, PickUpParamsModel, TaskDetailInfo, TaskDetailInfoModel,
+  ImageList, PickUpParamsModel,
+  PostParams,
+  TaskDetailInfo, TaskDetailInfoModel,
   TaskTypeEunm } from '../../model'
 import { call } from '@kit.TelephonyKit'
 import { Log } from '@abner/log'
 import { Skeleton } from '../../components/Skeleton'
 import {  app_top_Height } from '../../constants'
+import { MessageEvent, MessageEvents, taskpool, util, worker } from '@kit.ArkTS'
+import { image } from '@kit.ImageKit'
+import { fileIo } from '@kit.CoreFileKit'
 
 @Entry
 @Component
@@ -315,19 +320,56 @@ getBottomBtn(){
    // 图片上传
    try {
      this.layer.open()
-     const result =  await Promise.all([
-       await UploadFiles(this.taskDetailDateInfo.cargoPickUpPictureList),
-       await UploadFiles(this.taskDetailDateInfo.cargoPictureList)]
-     )
-     Log.info(JSON.stringify(result))
-     await  pickUp( new PickUpParamsModel({
-       id:this.taskDetailDateInfo.id,
-       cargoPickUpPictureList:result[0],
-       cargoPictureList:result[1]
-     }))
-     this.getTaskDetailData(this.taskDetailDateInfo.id)
-    this.scroller.scrollEdge(Edge.Top)
-     promptAction.showToast({message:"提货成功!!",duration:3000})
+
+     //创建子线程
+     const worker1 = new worker.ThreadWorker('entry/ets/workers/Worker.ets')
+     const worker2 = new worker.ThreadWorker('entry/ets/workers/Worker.ets')
+
+    worker1.postMessage({
+    files:[...this.taskDetailDateInfo.cargoPickUpPictureList],
+      filePath:getContext().cacheDir
+    }as  PostParams)
+
+
+     worker2.postMessage({
+       files:[...this.taskDetailDateInfo.cargoPictureList],
+       filePath:getContext().cacheDir
+     }as  PostParams)
+
+let cargoPickUpPictureList:ImageList[]=[]
+  let    cargoPictureList:ImageList[]=[]
+
+     worker1.onmessage=async (e:MessageEvents)=>{
+       const params = e.data as PostParams
+       cargoPickUpPictureList = params.files
+      await checkFiles()
+     }
+
+     worker2.onmessage=async (e:MessageEvents)=>{
+       const params = e.data as PostParams
+       cargoPictureList = params.files
+       await checkFiles()
+     }
+
+     const checkFiles= async ()=>{
+       if (cargoPickUpPictureList.length && cargoPictureList.length) {
+         const result =  await Promise.all([
+           await UploadFiles(cargoPickUpPictureList),
+           await UploadFiles(cargoPictureList)]
+         )
+
+         Log.info(JSON.stringify(result))
+         await  pickUp( new PickUpParamsModel({
+           id:this.taskDetailDateInfo.id,
+           cargoPickUpPictureList:result[0],
+           cargoPictureList:result[1]
+         }))
+         this.getTaskDetailData(this.taskDetailDateInfo.id)
+         this.scroller.scrollEdge(Edge.Top)
+         promptAction.showToast({message:"提货成功!!",duration:3000})
+
+       }
+     }
    } catch (err) {
      AlertDialog.show({message:"提货失败"+JSON.stringify(err)})
    } finally {
@@ -339,9 +381,17 @@ getBottomBtn(){
     // 图片上传
     try {
       this.layer.open()
+      const  task1 =
+        new taskpool.Task(compressImage,[...this.taskDetailDateInfo.certificatePictureList],getContext().cacheDir)
+      const  task2 =
+        new taskpool.Task(compressImage,[...this.taskDetailDateInfo.deliverPictureList],getContext().cacheDir)
+    const  result1 = await taskpool.execute(task1)
+      const  result2 = await taskpool.execute(task2)
+
+
       const result =  await Promise.all([
-        await UploadFiles(this.taskDetailDateInfo.certificatePictureList),
-        await UploadFiles(this.taskDetailDateInfo.deliverPictureList)]
+        await UploadFiles(result1 as ImageList[]),
+        await UploadFiles(result2 as ImageList[])]
       )
       Log.info(JSON.stringify(result))
       await  deliver(new DeliverParamsModel({
@@ -491,6 +541,17 @@ getBottomBtn(){
     }
     return false
   }
+
+
+  //taskpool创建
+
+
+
+
+
+
+
+
 }
 
 
@@ -504,7 +565,28 @@ class BaseContentItemBuilderClass{
 
 
 
+@Concurrent
+async  function  compressImage(img:ImageList[],path:string){
+  //接收主线程发送的数据
+  let arr:ImageList[]=[] //压缩后的地址
+  const imagePackerApi = image.createImagePacker()
+  let packerOptions :image.PackingOption = {format:"image/jpeg",quality:40}
+  while (img.length){
+    const images_ = img.pop()
+    const sourceImage = fileIo.openSync(images_?.url, fileIo.OpenMode.READ_ONLY)
+    const destPath = path + "/" + util.generateRandomUUID() + "_2.jpg" //压缩后图片存放的位置
+    const targetImage = fileIo.openSync(destPath, fileIo.OpenMode.CREATE | fileIo.OpenMode.READ_WRITE)
+    await imagePackerApi.packToFile(image.createImageSource(sourceImage.fd), targetImage.fd, packerOptions)
 
+    fileIo.close(sourceImage)
+    fileIo.close(targetImage)
+    arr.push({
+      url: destPath
+    })
+
+  }
+  return arr
+}
 
 
 
