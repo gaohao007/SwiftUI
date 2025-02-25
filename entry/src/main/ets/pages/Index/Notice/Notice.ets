@@ -3,9 +3,19 @@ import {  NoticeListItem, NoticeParams, NoticeParamsModel } from "../../../model
 import { promptAction, router } from "@kit.ArkUI"
 import { getNotice, MarkedReaded, readAll } from "../../../api/notice"
 import { Log } from "@abner/log"
+import { emitter } from "@kit.BasicServicesKit"
+import { event } from "../../../constants"
 
 @Component
 export struct Notice{
+///页面返回 订阅消息并刷新
+  aboutToAppear(): void {
+      emitter.on(event,(evenData)=>{
+        this.queryParams.page=1;
+        this.getNotice(false)
+        this.isRefresh = true
+      })
+  }
   //接收数据
   @State
   noticeList:NoticeListItem[]=[]
@@ -77,14 +87,15 @@ export struct Notice{
      .padding({left:20,right:20})
     .onClick(async ()=>{
       readAll(this.queryParams.contentType)
+      this.isRefresh = true
     })
   }
-
+//是否显示加载中
   @State isRefresh:boolean = true
-
+//刷新状态
   @State
   refreshStatus:RefreshStatus= RefreshStatus.Inactive
-
+//刷新状态的显示
   getStatusInfo(){
     switch (this.refreshStatus){
       case RefreshStatus.Drag:
@@ -208,6 +219,7 @@ export struct Notice{
   }
 
 }
+// 通知内容
 class noticeItem{
   rightValue:string=""
   leftValue:string=""

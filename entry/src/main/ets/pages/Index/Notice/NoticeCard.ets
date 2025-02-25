@@ -8,7 +8,7 @@ export struct NoticeCard {
 
   @Prop
      noticeItem:NoticeListItem= new  NoticeListItemModel({} as NoticeListItem)
-
+//获取首行文本
   @Builder
   getNoticeCardContent(){
     Row(){
@@ -34,6 +34,7 @@ export struct NoticeCard {
         .fontSize(14)
         .fontColor($r("app.color.text_secondary"))
         .margin({top:20,bottom:20})
+        .offset({x:-20})
       Row(){
         Text(this.noticeItem.created)
           .fontSize(12)
@@ -59,8 +60,4 @@ export struct NoticeCard {
       .padding({left:20,right:20})
     }.backgroundColor($r("app.color.white"))
   }
-}
-class item{
-  rightValue:string=""
-  leftValue:string=""
 }

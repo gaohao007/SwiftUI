@@ -1,6 +1,12 @@
 import { router } from "@kit.ArkUI"
+import { emitter } from "@kit.BasicServicesKit"
+import { event } from "../constants"
+
+
 @Component
 export  struct  NavBar{
+//用于发布事件
+ isEmitter:boolean=false
 showBackIcon:boolean=true
   title:string=""
   build() {
@@ -23,6 +29,13 @@ showBackIcon:boolean=true
               .width(44)
               .height(44)
               .onClick(()=>{
+                if(this.isEmitter){
+                  emitter.emit(event,{
+                    data:{
+                      refresh:1
+                    }
+                  })
+                }
                 router.back()
               })
           }.alignItems(VerticalAlign.Center)

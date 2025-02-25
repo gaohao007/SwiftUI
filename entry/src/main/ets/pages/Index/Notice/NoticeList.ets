@@ -4,20 +4,25 @@ import { getNotice, readAll } from "../../../api/notice"
 import { Log } from "@abner/log"
 import { Loading } from "../../../components"
 import { NoticeCard } from "./NoticeCard"
+import { emitter } from "@kit.BasicServicesKit"
+import { event } from "../../../constants"
 
 @Component
 export struct NoticeList {
 
-@State isShow:boolean = true
+aboutToAppear(): void {
+  emitter.on(event,(evenData)=>{
+    this.queryParams.page=1;
+    this.getNotice(false)
+    this.isRefresh = true
+  })
+}
 
 
   //接收数据
   @State
   noticeList:NoticeListItem[]=[]
-
-
   @State isRefresh:boolean = true
-
   @State
   refreshStatus:RefreshStatus= RefreshStatus.Inactive
   //请求参数
@@ -55,7 +60,8 @@ export struct NoticeList {
     .padding({left:20,right:20,top:5})
     .onClick(async ()=>{
          await readAll(this.queryParams.contentType)
-
+          this.isRefresh = true
+      this.refreshStatus = RefreshStatus.Inactive
     })
   }
   build() {

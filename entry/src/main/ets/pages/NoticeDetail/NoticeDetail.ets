@@ -6,6 +6,7 @@ import { CommonRouterParams } from '../../model';
 @Entry
 @Component
 struct NoticeDetail {
+  // 接收文本数据
  @State content:string=""
   @State createTime:string=""
 aboutToAppear() {
@@ -22,7 +23,7 @@ aboutToAppear() {
       Row().width('100%')
         .height(AppStorage.get(app_top_Height))
         .backgroundColor($r("app.color.white"))
-      NavBar({ title: '详情'})
+      NavBar({ title: '详情',isEmitter:true})
 
       Text('系统公告').fontSize(23)
         .fontWeight(600).width('100%')
