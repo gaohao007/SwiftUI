@@ -7,4 +7,6 @@ export class CommonRouterParams {
   address?:string=""
   transmintExceptionDate?:ExceptionList= new ExceptionListModel({} as ExceptionList)
   isExceptionReport?:boolean =false
+  createdTime?:string=""
+  noticeContent?:""=""
 }

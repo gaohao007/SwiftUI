@@ -1,11 +1,15 @@
 import { NoticeListItem, NoticeParams, NoticeParamsModel } from "../../../model/notice"
 import { promptAction } from "@kit.ArkUI"
-import { getNotice } from "../../../api/notice"
+import { getNotice, readAll } from "../../../api/notice"
 import { Log } from "@abner/log"
 import { Loading } from "../../../components"
+import { NoticeCard } from "./NoticeCard"
 
 @Component
 export struct NoticeList {
+
+@State isShow:boolean = true
+
 
   //接收数据
   @State
@@ -49,6 +53,10 @@ export struct NoticeList {
     .width('100%')
     .backgroundColor($r("app.color.white"))
     .padding({left:20,right:20,top:5})
+    .onClick(async ()=>{
+         await readAll(this.queryParams.contentType)
+
+    })
   }
   build() {
     Column(){
@@ -57,16 +65,18 @@ export struct NoticeList {
         List({space:20}){
           ForEach(this.noticeList,(item:NoticeListItem)=>{
             ListItem(){
-
+                NoticeCard({noticeItem:item})
             }.padding(10)
           })
           ListItem(){
             this.getBottomDisplay()
           }
 
-        }.width('100%').height(250)
+        }.width('100%')
         .padding({ left:10,right:10,bottom:20 })
         .backgroundColor($r("app.color.white"))
+        .margin({bottom:50})
+        .height('450')
         .onReachEnd(async ()=>{
           if (this.totalPageSize>=this.queryParams.page) {
             if (!this.isLoading) {

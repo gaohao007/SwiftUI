@@ -1,7 +1,7 @@
 import { Loading } from "../../../components"
 import {  NoticeListItem, NoticeParams, NoticeParamsModel } from "../../../model/notice"
-import { promptAction } from "@kit.ArkUI"
-import { getNotice } from "../../../api/notice"
+import { promptAction, router } from "@kit.ArkUI"
+import { getNotice, MarkedReaded, readAll } from "../../../api/notice"
 import { Log } from "@abner/log"
 
 @Component
@@ -9,7 +9,6 @@ export struct Notice{
   //接收数据
   @State
   noticeList:NoticeListItem[]=[]
-
 //请求接口
   async  getNotice(append:boolean){
     const  res =  await getNotice(this.queryParams)
@@ -24,8 +23,6 @@ export struct Notice{
     Log.info(JSON.stringify(this.noticeList))
   }
 
-
-
 //请求参数
   @State
   queryParams:NoticeParams = new NoticeParamsModel({
@@ -38,12 +35,12 @@ export struct Notice{
   @Builder
   getNoticeContent(item:noticeItem){
     Row({space:5}){
-      Text("·")
-        .width(20)
-        .height(20)
-        .fontWeight(700)
-        .borderRadius(10)
-        .fontColor('#ff3331')
+      if (item.value ===0){
+        Text("·")
+          .fontSize(50)
+          .fontWeight(700)
+          .fontColor('#ff3331')
+      }
         Text(item.leftValue)
           .constraintSize({maxWidth:'50%'})
           .maxLines(1)
@@ -51,6 +48,8 @@ export struct Notice{
         Text(item.rightValue)
           .fontSize(12)
           .fontColor($r("app.color.text_secondary"))
+
+
     }.width('100%')
     .padding({left:15,right:15})
     .backgroundColor($r("app.color.white"))
@@ -74,8 +73,11 @@ export struct Notice{
     }
     .width('100%')
     .height(50)
-      .backgroundColor($r("app.color.white"))
-       .padding({left:20,right:20})
+    .backgroundColor($r("app.color.white"))
+     .padding({left:20,right:20})
+    .onClick(async ()=>{
+      readAll(this.queryParams.contentType)
+    })
   }
 
   @State isRefresh:boolean = true
@@ -152,15 +154,26 @@ export struct Notice{
             ListItem(){
               this.getNoticeContent({
                 leftValue:item.content,
-                rightValue:item.created
+                rightValue:item.created,
+                value:item.isRead
               })
             }.padding(10)
+            .onClick( async ()=>{
+              await MarkedReaded(item.id)
+              router.pushUrl({url:"pages/NoticeDetail/NoticeDetail",
+              params:{
+                id:item.id,
+                createdTime:item.created,
+                noticeContent:item.content
+              }
+              })
+            })
           })
           ListItem(){
             this.getBottomDisplay()
           }
 
-        }.width('100%').height(250)
+        }.width('100%')
         .padding({ left:10,right:10,bottom:20 })
         .backgroundColor($r("app.color.white"))
         .onReachEnd(async ()=>{
@@ -198,4 +211,5 @@ export struct Notice{
 class noticeItem{
   rightValue:string=""
   leftValue:string=""
+  value:number=0
 }

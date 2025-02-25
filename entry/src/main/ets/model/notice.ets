@@ -47,7 +47,7 @@ export interface NoticeListItem{
   bussinessType:number,
   userId: string,
   contentType: number,
-  isRead: string,
+  isRead: number,
   readTime: null |string,
   relevantId: string,
   createUser: string,
@@ -63,7 +63,7 @@ export class NoticeListItemModel implements NoticeListItem{
   bussinessType:number=0
   userId: string=''
   contentType: number=0
-  isRead: string=''
+  isRead: number=0
   readTime: null |string=null
   relevantId: string=''
   createUser: string=''
