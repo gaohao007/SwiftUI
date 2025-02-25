@@ -1,6 +1,7 @@
 import { app_bottom_height, app_top_Height, TOKEN_KEY } from '../../constants'
 import { TabClass } from '../../model'
 import { Mine } from './My/Mine'
+import { NoticeTab } from './Notice/NoticeTab'
 import { TaskTabs } from './TaskTabs/TaskTabs'
 
 PersistentStorage.persistProp(TOKEN_KEY,"")
@@ -51,7 +52,7 @@ struct Index {
             if (item.name === 'Task') {
               TaskTabs()
             }else  if (item.name === 'Message'){
-              Text('消息组件')
+              NoticeTab()
             }else {
               Mine()
             }
